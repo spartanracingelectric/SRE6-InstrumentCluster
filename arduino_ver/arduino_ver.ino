@@ -13,16 +13,12 @@
 #include "LedControl.h"
 #include <math.h>
 
+//16 bit, start bit 0
+const uint16_t RPM_ADDR = 0x640;
 
+//const uint16_t GEAR_ADDR = 0x64D;
 
-//——————————————————————————————————————————————————————————————————————————————
-// The Pico has two SPI peripherals, SPI and SPI1. Either (or both) can be used.
-// The are no default pin assignments to these must be set explicitly.
-// At the time of writing (Apr 2021) there is no official Arduino core for the Pico
-// Testing was done with Earle Philhower's arduino-pico core:
-// https://github.com/earlephilhower/arduino-pico
-// There is a small bug in release 1.0.3 so you will require at least 1.0.4
-//——————————————————————————————————————————————————————————————————————————————
+const uint16_t GEAR_ADDR = 0x703;
 
 static const byte MCP2515_SCK  = 2 ; // SCK input of MCP2515
 static const byte MCP2515_MOSI = 3 ; // SDI input of MCP2515
@@ -30,6 +26,7 @@ static const byte MCP2515_MISO = 4 ; // SDO output of MCP2517
 
 static const byte MCP2515_CS  = 5 ;  // CS input of MCP2515 (adapt to your design)
 static const byte MCP2515_INT = 6 ;  // INT output of MCP2515 (adapt to your design)
+
 
 //——————————————————————————————————————————————————————————————————————————————
 //  MCP2515 Driver object
@@ -50,6 +47,20 @@ unsigned long delaytime = 500;
 //——————————————————————————————————————————————————————————————————————————————
 
 static const uint32_t QUARTZ_FREQUENCY = 8UL * 1000UL * 1000UL ; // 8 MHz
+
+
+uint16_t rpm;
+uint8_t gear;
+
+static void receive0 (const CANMessage & inMessage) {
+  Serial.println ("Receive 0") ;
+}
+
+//——————————————————————————————————————————————————————————————————————————————
+
+static void receive1 (const CANMessage & inMessage) {
+  Serial.println ("Receive 1") ;
+}
 
 //——————————————————————————————————————————————————————————————————————————————
 //   SETUP
@@ -75,10 +86,12 @@ void setup () {
   //--- Start serial
   Serial.begin (115200) ;
   //--- Wait for serial (blink led at 10 Hz during waiting)
+  /*
   while (!Serial) {
     delay (50) ;
     digitalWrite (LED_BUILTIN, !digitalRead (LED_BUILTIN)) ;
   }
+  */
   //--- There are no default SPI pins so they must be explicitly assigned
   SPI.setSCK(MCP2515_SCK);
   SPI.setTX(MCP2515_MOSI);
@@ -90,7 +103,17 @@ void setup () {
   Serial.println ("Configure ACAN2515") ;
   ACAN2515Settings settings (QUARTZ_FREQUENCY, 500UL * 1000UL) ; // CAN bit rate 500 kb/s
   //settings.mRequestedMode = ACAN2515Settings::LoopBackMode ; // Select loopback mode
+
+  const ACAN2515Mask rxm0 = extended2515Mask (0x1FFFFFFF) ;
+  const ACAN2515Mask rxm1 = standard2515Mask (0x7FF, 0, 0) ;
+  const ACAN2515AcceptanceFilter filters [] = {
+  {standard2515Filter (RPM_ADDR, 0, 0), receive0}, // RXF0
+  {standard2515Filter (GEAR_ADDR, 0, 0), receive1} // RXF1
+  } ;
+  
+  //const uint16_t errorCode = can.begin (settings, [] { can.isr () ; }, rxm0, rxm1, filters, 2) ;
   const uint16_t errorCode = can.begin (settings, [] { can.isr () ; }) ;
+  
   if (errorCode == 0) {
     Serial.print ("Bit Rate prescaler: ") ;
     Serial.println (settings.mBitRatePrescaler) ;
@@ -116,38 +139,108 @@ void setup () {
     Serial.print ("Configuration error 0x") ;
     Serial.println (errorCode, HEX) ;
   }
+ 
+  digitalWrite (LED_BUILTIN, HIGH) ;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static uint32_t gBlinkLedDate = 0 ;
+static uint32_t gGearUpdate = 0 ;
+static uint32_t gRPMUpdate = 0 ;
 static uint32_t gReceivedFrameCount = 0 ;
 static uint32_t gSentFrameCount = 0 ;
+static uint8_t gTransmitBufferIndex = 0 ;
+
 
 //——————————————————————————————————————————————————————————————————————————————
 
 void loop () {
-  CANMessage gear, rpm, frame;
-  frame.len = 8;
-  gear.len = 8;
-  rpm.len = 8;
+  can.dispatchReceivedMessage();
+
   
+  //CANMessage gear, rpm, frame;
+  CANMessage frame;
+  //gear.len = 8;
+  //rpm.len = 8;
 
-//  if (gBlinkLedDate < millis ()) {
-//    gBlinkLedDate += 500 ;;
-//    digitalWrite (LED_BUILTIN, !digitalRead (LED_BUILTIN)) ;
-//    const bool ok = can.tryToSend (frame) ;
-//    if (ok) {
-//      gSentFrameCount += 1 ;
-//      Serial.print ("Sent: ") ;
-//      Serial.println (gSentFrameCount) ;
-//    } else {
-//      Serial.println ("Send failure") ;
-//    }
-//  }
+  if (can.available ()) {
+    can.receive (frame);
+    if (frame.id == RPM_ADDR) {
+        rpm = frame.data[1]+frame.data[0]*256;
+    }
+    if (frame.id == GEAR_ADDR) {
+        //gear = (frame.data[6]&(0b11110000))>>4;
+        gear = frame.data[1];
+    }
+  }
+
+  if (gRPMUpdate < millis()) {
+    gRPMUpdate += 400;
+     //Serial.print (frame.id);
+    //Serial.print (" Gear: ") ;
+    Serial.println(gear);
+    //Serial.print (" RPM: ");
+    Serial.println(rpm);
+    Serial.println();
+  
+    //interpret rpm data
+    uint16_t x = (rpm/100) * 100 ; //Round to hundreds
     
+    uint8_t count = 0;
+    uint8_t xLength;
+    
+    if(x!=0)
+      xLength = (int)log10(x)+1;
+    else xLength = 1;
+    
+    //ensure correct format for rpm data
+    while(count<xLength){
+      lc.setDigit(0,count,x%10,false);
+      count++;
+      x/=10;
+    }
+  }
+
+  if (gGearUpdate < millis ()) {
+    gGearUpdate += 200 ;
+    //digitalWrite (LED_BUILTIN, !digitalRead (LED_BUILTIN)) ;
+
+    lc.setDigit(0,7,gear,false);
+    /*
+    frame.idx = gTransmitBufferIndex ;
+    gTransmitBufferIndex = (gTransmitBufferIndex + 1) % 2 ;
+    switch (gSentFrameCount % 2) {
+      case 0 : { // Matches filter #0
+        
+        //interpret rpm data
+        uint8_t x = frame.data[0]+frame.data[1]*256;
+        
+        uint8_t count = 0;
+        uint8_t xLength;
+        
+        if(x!=0)
+          xLength = (int)log10(x)+1;
+        else xLength = 1;
+        
+        //ensure correct format for rpm data
+        while(count<xLength){
+          lc.setDigit(0,count,x%10,false);
+          count++;
+          x/=10;
+        }
+        break ;
+      }
+      case 1 : // Matches filter #1
+        uint8_t gearRatio = (frame.data[6]&(0b11110000))>>4;
+        lc.setDigit(0,7,gearRatio,false);
+        break ;
+    }
+    */
+  }
+}
 
 
+  /*
 //keep reading CAN messages until both gear and rpm data is found
   while(gear.id != 0x64D || rpm.id != 0x640){
      can.receive(frame);
@@ -187,16 +280,8 @@ void loop () {
     //Serial.println (gReceivedCount) ;
     delay(delaytime);
   }
+  */
  
   
-  
-  /*
-  if (can.available ()) {
-    can.receive (frame) ;
-    gReceivedFrameCount ++ ;
-    Serial.print ("Received: ") ;
-    Serial.println (gReceivedFrameCount) ;
-  }
-  */
 
 //——————————————————————————————————————————————————————————————————————————————
