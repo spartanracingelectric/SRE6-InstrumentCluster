@@ -13,6 +13,10 @@
 #include "LedControl.h"
 #include <math.h>
 
+const uint8_t NUM_LEDS = 8;
+const uint8_t LEDS[NUM_LEDS] = {26, 22, 21, 20, 19, 18, 17, 16};
+const uint16_t FLASH_TIME_MS = 200;
+
 //16 bit, start bit 0
 const uint16_t RPM_ADDR = 0x640;
 
@@ -52,6 +56,8 @@ static const uint32_t QUARTZ_FREQUENCY = 8UL * 1000UL * 1000UL ; // 8 MHz
 uint16_t rpm;
 uint8_t gear;
 
+static bool led_disabled = 0;
+
 static void receive0 (const CANMessage & inMessage) {
   Serial.println ("Receive 0") ;
 }
@@ -61,6 +67,48 @@ static void receive0 (const CANMessage & inMessage) {
 static void receive1 (const CANMessage & inMessage) {
   Serial.println ("Receive 1") ;
 }
+
+void toggle_all_leds() {
+  for (uint8_t i = 0; i < 8; i++) {
+
+    //if on, set led_disabled flag on as leds to be toggled
+    if (digitalRead(LEDS[i]) == LOW) led_disabled = true;
+    //if off, set led_disabled flag off as leds to be toggled
+    else                             led_disabled = false;
+      
+    digitalWrite(LEDS[i], !digitalRead(LEDS[i]));
+  }
+}
+
+void enable_all_leds() {
+  //Active LOW, make LOW to turn on
+  led_disabled = false;
+  for (uint8_t i = 0; i < 8; i++) {
+    digitalWrite(LEDS[i], LOW);
+  }
+}
+
+void disable_all_leds() {
+  //Active LOW, make HIGH to turn off
+  led_disabled = true;
+  for (uint8_t i = 0; i < 8; i++) {
+    digitalWrite(LEDS[i], HIGH);
+  }
+}
+
+void wake_leds() {
+  for (uint8_t i = 0; i < 8; i++) {
+    digitalWrite(LEDS[i], LOW);
+    delay(100);
+  }
+  for (uint8_t i = 0; i < 8; i++) {
+    digitalWrite(LEDS[7-i], HIGH);
+    delay(100);
+  }
+}
+
+
+
 
 //——————————————————————————————————————————————————————————————————————————————
 //   SETUP
@@ -79,6 +127,11 @@ void setup () {
   /* and clear the display */
   
   lc.clearDisplay(0);
+
+
+  for (uint8_t i = 0; i < 8; i++) {
+    pinMode(LEDS[i], OUTPUT);
+  }
   
   //--- Switch on builtin led
   pinMode (LED_BUILTIN, OUTPUT) ;
@@ -141,10 +194,18 @@ void setup () {
   }
  
   digitalWrite (LED_BUILTIN, HIGH) ;
+
+  disable_all_leds();
+
+  wake_leds();
+
+  disable_all_leds();
+
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
+static uint32_t prev_millis = 0;
 static uint32_t gGearUpdate = 0 ;
 static uint32_t gRPMUpdate = 0 ;
 static uint32_t gReceivedFrameCount = 0 ;
@@ -174,6 +235,22 @@ void loop () {
     }
   }
 
+  //Update timestamp
+  uint32_t curr_millis = millis();
+
+  if (rpm > 11600) {
+    if (curr_millis-prev_millis >= FLASH_TIME_MS) {
+      prev_millis = curr_millis;
+      toggle_all_leds();
+    }
+  }
+  else {
+    //If not disabled
+    if (!led_disabled) {
+      disable_all_leds();
+    }
+  }
+
   if (gRPMUpdate < millis()) {
     gRPMUpdate += 400;
      //Serial.print (frame.id);
@@ -192,6 +269,11 @@ void loop () {
     if(x!=0)
       xLength = (int)log10(x)+1;
     else xLength = 1;
+
+    //clear remaining 1s before reupdating
+    if (xLength == 4) {
+      lc.setChar(0, 4, ' ', false);
+    }
     
     //ensure correct format for rpm data
     while(count<xLength){
@@ -206,36 +288,6 @@ void loop () {
     //digitalWrite (LED_BUILTIN, !digitalRead (LED_BUILTIN)) ;
 
     lc.setDigit(0,7,gear,false);
-    /*
-    frame.idx = gTransmitBufferIndex ;
-    gTransmitBufferIndex = (gTransmitBufferIndex + 1) % 2 ;
-    switch (gSentFrameCount % 2) {
-      case 0 : { // Matches filter #0
-        
-        //interpret rpm data
-        uint8_t x = frame.data[0]+frame.data[1]*256;
-        
-        uint8_t count = 0;
-        uint8_t xLength;
-        
-        if(x!=0)
-          xLength = (int)log10(x)+1;
-        else xLength = 1;
-        
-        //ensure correct format for rpm data
-        while(count<xLength){
-          lc.setDigit(0,count,x%10,false);
-          count++;
-          x/=10;
-        }
-        break ;
-      }
-      case 1 : // Matches filter #1
-        uint8_t gearRatio = (frame.data[6]&(0b11110000))>>4;
-        lc.setDigit(0,7,gearRatio,false);
-        break ;
-    }
-    */
   }
 }
 
