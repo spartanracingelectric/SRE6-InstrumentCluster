@@ -24,12 +24,12 @@ const uint16_t RPM_ADDR = 0x640;
 
 const uint16_t GEAR_ADDR = 0x703;
 
-static const byte MCP2515_SCK  = 24; // SCK input of MCP2515
-static const byte MCP2515_MOSI = 25; // SDI input of MCP2515
-static const byte MCP2515_MISO = 21; // SDO output of MCP2517
+static const byte MCP2515_SCK  = 2 ; // SCK input of MCP2515
+static const byte MCP2515_MOSI = 3 ; // SDI input of MCP2515
+static const byte MCP2515_MISO = 4 ; // SDO output of MCP2517
 
-static const byte MCP2515_CS  = 22 ;  // CS input of MCP2515 (adapt to your design)
-static const byte MCP2515_INT = 20 ;  // INT output of MCP2515 (adapt to your design)
+static const byte MCP2515_CS  = 5 ;  // CS input of MCP2515 (adapt to your design)
+static const byte MCP2515_INT = 6 ;  // INT output of MCP2515 (adapt to your design)
 
 
 //——————————————————————————————————————————————————————————————————————————————
