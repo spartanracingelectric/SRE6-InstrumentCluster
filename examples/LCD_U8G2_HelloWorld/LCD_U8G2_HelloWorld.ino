@@ -8,11 +8,12 @@
 #include <Wire.h>
 #endif
 
-#define PICO_DC 16 //LCD A0
-#define PICO_CS 17
-#define PICO_SCK 18
-#define PICO_TX 19
-#define PICO_RST 20
+#define PICO_DC 3 //LCD A0
+#define PICO_CS 2
+#define PICO_SCK 5
+#define PICO_TX 4
+//On SRE6/SR13 REV-A, RST pin is connected to Pico RUN, LCD needs its own Pico GPO to simulate reset. Excluding inclusion of this Pico GPO
+#define PICO_RST U8X8_PIN_NONE
 
 /*
   U8g2lib Example Overview:
