@@ -165,22 +165,16 @@ void setup()
 {
   // put your setup code here, to run once:
   u8g2.begin();
-  u8g2.clearBuffer();
 }
 
 void loop()
 {
   // put your main code here, to run repeatedly:
-  u8g2.firstPage();
-  u8g2.setDrawColor(1);
-  u8g2.setBitmapMode(0);
-  do
-  {
-    //driverC();
-    driverE();
-    //menu();
-    
-  } while (u8g2.nextPage());
+  u8g2.clearBuffer();
+  //driverC();
+  driverE();
+  //menu();
+  u8g2.sendBuffer();
 
   delay(1000);
 
