@@ -43,12 +43,30 @@ void can__set(){
   pinMode (LED_BUILTIN, OUTPUT);
   digitalWrite (LED_BUILTIN, HIGH);
   
+  //--- Start serial
+  Serial.begin (115200);
+  
+  //--- Wait for serial (blink led at 10 Hz during waiting)
+  while (!Serial) {
+    delay (50);
+    digitalWrite (LED_BUILTIN, !digitalRead (LED_BUILTIN)) ;
+  }
+  
+  //--- There are no default SPI pins so they must be explicitly assigned
+  SPI.setSCK(PICO_SCK_MCP2515);
+  SPI.setTX(PICO_MOSI_MCP2515);
+  SPI.setRX(PICO_MISO_MCP2515);
+  SPI.setCS(PICO_CS_MCP2515);
+  
   //--- Begin SPI
   SPI.begin ();
   
   //--- Configure ACAN2515
   Serial.println ("Configure ACAN2515") ;
   ACAN2515Settings settings (QUARTZ_FREQUENCY, 500UL * 1000UL) ; // CAN bit rate 500s kb/s
+
+  //delete later
+  settings.mRequestedMode = ACAN2515Settings::LoopBackMode ; // Select loopback mode
   
   const uint16_t errorCode = can.begin (settings, [] { can.isr () ; }) ;
   if (errorCode == 0) {
@@ -76,6 +94,7 @@ void can__set(){
     Serial.print ("Configuration error 0x") ;
     Serial.println (errorCode, HEX) ;
   }
+ 
 }
 
 static uint32_t gBlinkLedDate = 0 ;
@@ -84,7 +103,7 @@ static uint32_t gSentFrameCount = 0 ;
 
 
 void can__update(){
- //can.dispatchReceivedMessage();
+   //can.dispatchReceivedMessage();
   
   CANMessage frame ;
 
@@ -119,4 +138,5 @@ void can__update(){
     Serial.print ("Received: ") ;
     Serial.println (gReceivedFrameCount) ;
   }
+  
 }
