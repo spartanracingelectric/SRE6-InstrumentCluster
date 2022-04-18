@@ -2,10 +2,8 @@
 #define BUTTONS_H_
 
 #include <Arduino.h>
-#include "1602lcd.h"
-#include "indicators.h"
-#include "can.h"
-#include "conf.h"
+#include "CAN.h"
+#include "CONFIG.h"
 
 void buttons__init();
 void buttons__poll();
