@@ -65,8 +65,8 @@ void can__set(){
   Serial.println ("Configure ACAN2515") ;
   ACAN2515Settings settings (QUARTZ_FREQUENCY, 500UL * 1000UL) ; // CAN bit rate 500s kb/s
 
-  //delete later
-  settings.mRequestedMode = ACAN2515Settings::LoopBackMode ; // Select loopback mode
+  //deleted - no longer needing to be in practice loopback mode
+  //settings.mRequestedMode = ACAN2515Settings::LoopBackMode ; // Select loopback mode
   
   const uint16_t errorCode = can.begin (settings, [] { can.isr () ; }) ;
   if (errorCode == 0) {
