@@ -11,4 +11,4 @@ void leds__start();
 //create LEDs Update function that takes CAN data and changes LEDs
 
 
-#endif LEDS_H_
+#endif /* LEDS_H_ */
