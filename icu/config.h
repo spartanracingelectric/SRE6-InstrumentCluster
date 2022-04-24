@@ -2,7 +2,7 @@
 #define CONFIG_H_
 
 // Set to 1 if you want to print the input data over serial
-#define SERIAL_PRINT_TESTS 0
+#define SERIAL_DEBUG_EN 0
 
 /****************************************************************************/
 /*  INSTRUMENT CLUSTER - SETUP CONFIGURATION FILE (for ports, etc)      */
