@@ -1,14 +1,43 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-// Set to 1 if you want to print the input data over serial
-#define SERIAL_DEBUG_EN 0
-
 /****************************************************************************/
 /*  INSTRUMENT CLUSTER - SETUP CONFIGURATION FILE (for ports, etc)      */
 /*                                      */
 /*  DUE TO F_CPU, conf.h MUST BE INCLUDED BEFORE ANY <avr/delay.h>      */
 /****************************************************************************/
+
+// Board Revision, select:
+// 'A' for Rev A
+// 'B' for Rev B
+#define BOARD_REVISION 'A'
+
+// Set to 1 if you want to print the input data over serial
+#define SERIAL_DEBUG_EN 0
+
+/*---------------------------------------------------------------------------/
+/ PIN INITIALIZATIONS
+/---------------------------------------------------------------------------*/
+
+//  Rev A
+#if (BOARD_REVISION == 'A')
+//  LCD
+#define PICO_LCD_SPI_CS     2
+#define PICO_LCD_SPI_MOSI   4
+#define PICO_LCD_SPI_SCK    5
+#define PICO_LCD_A0         3
+#define PICO_LCD_RST        U8X8_PIN_NONE
+//  LEDS, MAX7219
+#define PICO_LED_SPI_SCK    18
+#define PICO_LED_SPI_MOSI   19
+#define PICO_LED_SPI_CS     13
+//CAN, MCP2515
+#define PICO_CAN_SPI_SCK    18
+#define PICO_CAN_SPI_MOSI   19
+#define PICO_CAN_SPI_MISO   16
+#define PICO_CAN_SPI_CS     17
+#endif
+
 
 /*---------------------------------------------------------------------------/
 / CUSTOM CONFIGURATION VARIABLES
