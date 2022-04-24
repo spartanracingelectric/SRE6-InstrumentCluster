@@ -1,13 +1,17 @@
 #include <Arduino.h>
 #include <U8g2lib.h>
 #include <SPI.h>
+#include "config.h"
 
 #ifndef LCD_H_
 #define LCD_H_
 
-
-void lcd__init();
-void lcd__start();
+void lcd__init(U8G2_ST7565_NHD_C12864_F_4W_SW_SPI *lcd_ptr);        
+void lcd__print14(uint8_t x, uint8_t y, char *str);                 //Print str with Helvetica Bold Size 14
+void lcd__print18(uint8_t x, uint8_t y, char *str);                 //Print str with Helvetica Bold Size 18
+void lcd__print24(uint8_t x, uint8_t y, char *str);                 //Print str with Helvetica Bold Size 24
+void lcd__print_default_screen_template();
+void lcd__print_rpm(uint16_t rpm);
 
 
 #endif /* LCD_H_ */
