@@ -9,4 +9,4 @@ void can__set();
 void can__update();
 
 
-#endif CAN_H_
+#endif /* CAN_H_ */
