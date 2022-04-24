@@ -2,10 +2,6 @@
 #include "config.h"
 
 //——————————————————————————————————————————————————————————————————————————————
-
-#include <ACAN2515.h>
-
-//——————————————————————————————————————————————————————————————————————————————
 // The Pico has two SPI peripherals, SPI and SPI1. Either (or both) can be used.
 // The are no default pin assignments so they must be set explicitly.
 // Testing was done with Earle Philhower's arduino-pico core:
