@@ -1,6 +1,6 @@
 #include "leds.h"
 #include "can.h"
-#include <ACAN2515.h>
+#include "lcd.h"
 
 #ifndef ARDUINO_ARCH_RP2040
 #error "Select a Raspberry Pi Pico board"
