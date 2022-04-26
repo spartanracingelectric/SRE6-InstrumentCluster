@@ -12,7 +12,8 @@ void lcd__init(U8G2_ST7565_NHD_C12864_F_4W_SW_SPI *lcd_ptr)
 
 void lcd__print14(uint8_t x, uint8_t y, char *str)
 {
-    //lcd->clearBuffer();					// clear the internal memory
+    // Need to implement a way to update ONLY the space that is to be printed
+    lcd->clearBuffer();					// clear the internal memory
     
     //Refuses to take in a passed parameter for some reason
     //Bandaid fix to make multiple functions
@@ -24,7 +25,8 @@ void lcd__print14(uint8_t x, uint8_t y, char *str)
 
 void lcd__print18(uint8_t x, uint8_t y, char *str)
 {
-    //lcd->clearBuffer();					// clear the internal memory
+    // Need to implement a way to update ONLY the space that is to be printed
+    lcd->clearBuffer();					// clear the internal memory
     
     //Refuses to take in a passed parameter for some reason
     //Bandaid fix to make multiple functions
@@ -36,7 +38,8 @@ void lcd__print18(uint8_t x, uint8_t y, char *str)
 
 void lcd__print24(uint8_t x, uint8_t y, char *str)
 {
-    //lcd->clearBuffer();					// clear the internal memory
+    // Need to implement a way to update ONLY the space that is to be printed
+    lcd->clearBuffer();					// clear the internal memory
     
     //Refuses to take in a passed parameter for some reason
     //Bandaid fix to make multiple functions
@@ -55,9 +58,29 @@ void lcd__print_default_screen_template()
 void lcd__print_rpm(uint16_t rpm)
 {
     //RPM up to 5 digits
-    char rpm_str[6];
-    //Convert uint16_t to str
-    sprintf(rpm_str, "%d", rpm);
+    uint8_t RPM_MAX_DIGITS = 5;
+    char rpm_str_temp[6] = "     ";
+    char rpm_str[6] = "     ";
+    uint8_t rpm_num_digits = 1;
+
+    //Round to hundreds
+    rpm = (rpm/100) * 100;
+
+    if (rpm!=0)
+        rpm_num_digits = (int)log10(rpm)+1;
+
+    //clear remaining 1s before reupdating
+    if (rpm_num_digits == 4) {
+        rpm_str[0] = ' ';
+    }
+    
+    for (uint8_t i = 0; i < rpm_num_digits; i++) {
+        rpm_str_temp[i] = rpm%10 + '0';
+        rpm/=10;
+    }
+    for (uint8_t i = 0; i < rpm_num_digits; i++) {
+        rpm_str[RPM_MAX_DIGITS-i-1] = rpm_str_temp[i];
+    }
 
     lcd__print24(18, 30, rpm_str);
 }
