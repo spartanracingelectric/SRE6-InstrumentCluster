@@ -1,70 +1,19 @@
 #include "can.h"
 #include "config.h"
 
-//——————————————————————————————————————————————————————————————————————————————
-// The Pico has two SPI peripherals, SPI and SPI1. Either (or both) can be used.
-// The are no default pin assignments so they must be set explicitly.
-// Testing was done with Earle Philhower's arduino-pico core:
-// https://github.com/earlephilhower/arduino-pico
-//——————————————————————————————————————————————————————————————————————————————
-
-// This code is just the ACAN2515 LoopBackDemoRaspberryPiPico example code
-
-// Using SPI
-static const byte PICO_SCK_MCP2515  = 18; // SCK input of MCP2515
-static const byte PICO_MOSI_MCP2515 = 19; // SDI input of MCP2515
-static const byte PICO_MISO_MCP2515 = 16; // SDO output of MCP2517
-
-static const byte PICO_CS_MCP2515  = 17;  // CS input of MCP2515 (adapt to your design)
-static const byte PICO_INT_MCP2515 = 15;  // INT output of MCP2515 (adapt to your design)
-
-//——————————————————————————————————————————————————————————————————————————————
-//  MCP2515 Driver object
-//——————————————————————————————————————————————————————————————————————————————
-
-ACAN2515 can (PICO_CS_MCP2515, SPI, PICO_INT_MCP2515) ;
-
-//——————————————————————————————————————————————————————————————————————————————
-//  MCP2515 Quartz: adapt to your design
-//——————————————————————————————————————————————————————————————————————————————
+//Skip INT pin for Rev A, set to 0
+ACAN2515 can (PICO_CAN_SPI_CS, SPI, 15);
 
 static const uint32_t QUARTZ_FREQUENCY = 16UL * 1000UL * 1000UL; // 16 MHz
+ACAN2515Settings settings (QUARTZ_FREQUENCY, 500UL * 1000UL) ; // CAN bit rate 500s kb/s
 
-//——————————————————————————————————————————————————————————————————————————————
-//   SETUP
-//——————————————————————————————————————————————————————————————————————————————
-
-void can__set(){
-  //--- Switch on builtin led
-  pinMode (LED_BUILTIN, OUTPUT);
-  digitalWrite (LED_BUILTIN, HIGH);
-  
-  //--- Start serial
-  Serial.begin (115200);
-  
-  //--- Wait for serial (blink led at 10 Hz during waiting)
-  while (!Serial) {
-    delay (50);
-    digitalWrite (LED_BUILTIN, !digitalRead (LED_BUILTIN)) ;
-  }
-  
-  //--- There are no default SPI pins so they must be explicitly assigned
-  SPI.setSCK(PICO_SCK_MCP2515);
-  SPI.setTX(PICO_MOSI_MCP2515);
-  SPI.setRX(PICO_MISO_MCP2515);
-  SPI.setCS(PICO_CS_MCP2515);
-  
-  //--- Begin SPI
-  SPI.begin ();
+void can__start(){
   
   //--- Configure ACAN2515
-  Serial.println ("Configure ACAN2515") ;
-  ACAN2515Settings settings (QUARTZ_FREQUENCY, 500UL * 1000UL) ; // CAN bit rate 500s kb/s
-
-  //deleted - no longer needing to be in practice loopback mode
-  //settings.mRequestedMode = ACAN2515Settings::LoopBackMode ; // Select loopback mode
+  //Serial.println ("Configure ACAN2515") ;
   
   const uint16_t errorCode = can.begin (settings, [] { can.isr () ; }) ;
+  /*
   if (errorCode == 0) {
     Serial.print ("Bit Rate prescaler: ") ;
     Serial.println (settings.mBitRatePrescaler) ;
@@ -90,7 +39,17 @@ void can__set(){
     Serial.print ("Configuration error 0x") ;
     Serial.println (errorCode, HEX) ;
   }
+  */
+  //Non-zero indicates error
+  if (errorCode) {
+    //Serial.print ("Configuration error 0x") ;
+    //Serial.println (errorCode, HEX);
+  }
  
+}
+
+void can__stop() {
+  can.end();
 }
 
 static uint32_t gBlinkLedDate = 0 ;
@@ -117,8 +76,7 @@ void can__update(){
   
   
   if (gBlinkLedDate < millis ()) {
-    gBlinkLedDate += 2000 ;
-    digitalWrite (LED_BUILTIN, !digitalRead (LED_BUILTIN)) ;
+    gBlinkLedDate += 200 ;
     const bool ok = can.tryToSend (frame) ;
     if (ok) {
       gSentFrameCount += 1 ;
