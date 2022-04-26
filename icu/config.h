@@ -11,6 +11,9 @@
 // 'A' for Rev A
 // 'B' for Rev B
 #define BOARD_REVISION 'A'
+//#define BOARD_REVISION 'B' //Potentially unused
+#define POWERTRAIN_TYPE 'C'
+//#define POWERTRAIN_TYPE 'E'
 
 // Set to 1 if you want to print the input data over serial
 #define SERIAL_DEBUG_EN 0
@@ -38,10 +41,20 @@
 #define PICO_CAN_SPI_CS     17
 #endif
 
+//ADD REV B PINOUT
 
 /*---------------------------------------------------------------------------/
 / CUSTOM CONFIGURATION VARIABLES
 /---------------------------------------------------------------------------*/
+
+//  CAN BUS
+/////////////////////
+#if (POWERTRAIN_TYPE == 'C')
+//#define CANBUS_SPEED 1000UL * 1000UL //1 Mbit/s
+#define CANBUS_SPEED 500UL * 1000UL //500 kbit/s
+#else //POWERTRAIN_TYPE == 'E'
+#define CANBUS_SPEED 500UL * 1000UL //500 kbit/s
+#endif
 
 //  LOW VOLTAGE
 /////////////////////
@@ -75,5 +88,14 @@
 #define REGEN1_ADDR 0x702       // (-> VCU)
 #define REGEN2_ADDR 0x703       // (-> VCU)
 #define REGEN3_ADDR 0x704
+
+#define MAX72XX_HARDWARE_TYPE MD_MAX72XX::PAROLA_HW
+
+#ifndef BOARD_REVISION
+#error "Select a board revision"
+#endif
+#ifndef POWERTRAIN_TYPE
+#error "Select a powertrain type (C for Combustion or E for Electric)"
+#endif
 
 #endif /* CONF_H_ */
