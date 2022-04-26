@@ -1,3 +1,4 @@
+#include "config.h"
 #include "leds.h"
 #include "can.h"
 #include "lcd.h"
@@ -6,72 +7,64 @@
 #error "Select a Raspberry Pi Pico board"
 #endif
 
-#define HARDWARE_TYPE MD_MAX72XX::PAROLA_HW
-
 // LCD Object Initialization
 // Args: (U8G2_R0/Rotate, SCK, MOSI, CS, A0/DC, RST)
 U8G2_ST7565_NHD_C12864_F_4W_SW_SPI lcd_u8g2(U8G2_R2, PICO_LCD_SPI_SCK, PICO_LCD_SPI_MOSI, PICO_LCD_SPI_CS, PICO_LCD_A0, PICO_LCD_RST);
 
-MD_MAX72XX leds_md = MD_MAX72XX(HARDWARE_TYPE, PICO_LED_SPI_CS, 1);
+// LED Object Initialization
+// Args: (MAX72XX_HARDWARE_TYPE, CS, NUM_MAX72XX_DEVICES)
+// PAROLA_HW refers to an 8x8 LED matrix which we are sort of simulating
+MD_MAX72XX leds_md = MD_MAX72XX(MAX72XX_HARDWARE_TYPE, PICO_LED_SPI_CS, 1);
 
 void setup()
 {
-  Serial.begin(115200);
-  SPI.setSCK(PICO_LED_SPI_SCK);
-  SPI.setTX(PICO_LED_SPI_MOSI);
-  // Initialize lcd, pass U8G2 object pointer
+  //Serial.begin(115200);
+  SPI.setSCK(PICO_CAN_SPI_SCK);
+  SPI.setTX(PICO_CAN_SPI_MOSI);
+  SPI.setRX(PICO_CAN_SPI_MISO);
+  SPI.begin();
+
+  // No need to initialize CAB here, as can.begin seems to hog the data
+  // buffer which in turn stalls the MAX7219 and therefore the whole program
+  
+  // Initialize leds, pass U8G2 object pointer
   leds__init(&leds_md);
+  // Initialize lcd, pass U8G2 object pointer
   lcd__init(&lcd_u8g2);
-  //lcd__print(32, 50, "rpm");
+  
+  //Non functional as clearBuffer in loop overwrites for now
   lcd__print_default_screen_template();
   /*
-  //LED Sniffing code (Cause bad routing!!!!)
+  //LED Sniffing code
   delay(5000);
   for (uint8_t i = 0; i < 8; i++) {
     for (uint8_t j = 0; j < 8; j++) {
       Serial.println(i);
       Serial.println(j);
       Serial.println();
-      leds_md.setPoint(i,j,true); //LED1
+      leds_md.setPoint(i,j,true);
       delay(2000);
-      leds_md.setPoint(i,j,false); //LED1
+      leds_md.setPoint(i,j,false);
     }
   }
   */
-  leds_md.setPoint(0,0,true); //LED1
-  delay(1000);
-  leds_md.setPoint(0,3,true); //LED4
-  delay(1000);
-  leds_md.setPoint(1,1,true); //LED7
-  delay(1000);
-  leds_md.setPoint(1,4,true); //LED10
-  delay(1000);
-  leds_md.setPoint(4,5,true); //LED11-B
-  delay(1000);
-  leds_md.setPoint(4,0,true); //LED16-B
-  delay(1000);
-  leds_md.setPoint(2,5,true); //LED11-R
-  delay(1000);
-  leds_md.setPoint(2,0,true); //LED16-R
-  delay(1000);
-  leds_md.setPoint(3,5,true); //LED11-G
-  delay(1000);
-  leds_md.setPoint(3,0,true); //LED16-G
-  delay(1000);
 }
 
-char str0[] = "12000";
-char str1[] = "12333";
-char str2[] = "12666";
+//Test values for proof of concept
 uint8_t cnt = 0;
-uint16_t dly = 400;
+uint16_t test_vals[] = {250, 1259, 2400, 3658, 4815, 4405, 4623, 6042, 7404, 9480, 11400, 13004};
+uint16_t dly = 500;
 
 void loop()
 {
-  lcd__print_rpm(12000);
+  can__start();
+  can__update();
+  can__stop();
+  leds__rpm_update(test_vals[cnt]);
+  lcd__print_rpm(test_vals[cnt]);
   delay(dly);
-  lcd__print_rpm(12333);
-  delay(dly);
-  lcd__print_rpm(12666);
-  delay(dly);
+  cnt++;
+  if (cnt == (sizeof(test_vals)/sizeof(test_vals[0]))) {
+    cnt = 0;
+  }
 }
