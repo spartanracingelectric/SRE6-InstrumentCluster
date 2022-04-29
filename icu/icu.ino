@@ -34,6 +34,7 @@ void setup()
   
   //Non functional as clearBuffer in loop overwrites for now
   lcd__print_default_screen_template();
+  leds__wake();
   /*
   //LED Sniffing code
   delay(5000);
@@ -43,7 +44,7 @@ void setup()
       Serial.println(j);
       Serial.println();
       leds_md.setPoint(i,j,true);
-      delay(2000);
+      delay(1000);
       leds_md.setPoint(i,j,false);
     }
   }
@@ -52,7 +53,7 @@ void setup()
 
 //Test values for proof of concept
 uint8_t cnt = 0;
-uint16_t test_vals[] = {250, 1259, 2400, 3658, 4815, 4405, 4623, 6042, 7404, 9480, 11400, 13004};
+uint16_t test_vals[] = {109, 250, 1259, 2400, 3658, 4815, 4405, 4623, 6042, 7404, 9480, 11400, 13004};
 uint16_t dly = 500;
 
 void loop()
