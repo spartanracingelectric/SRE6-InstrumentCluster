@@ -72,6 +72,55 @@ void leds__disable_shift() {
   }
 }
 
+void leds__toggle_overrev() {
+  for (uint8_t led_idx = 1; led_idx < NUM_LED_SOLID-1; led_idx++) {
+    // If led on
+    if (pin_led_solid_state[led_idx]) {
+      // Then turn off
+      pin_led_solid_state[led_idx] = 0;
+      leds->setPoint(PIN_LED_SOLID[led_idx][0], PIN_LED_SOLID[led_idx][1], false);
+    }
+    //If led off
+    else {
+      // Then turn off
+      pin_led_solid_state[led_idx] = 1;
+      leds->setPoint(PIN_LED_SOLID[led_idx][0], PIN_LED_SOLID[led_idx][1], true);
+    }
+  }
+}
+
+void leds__toggle_revlim() {
+  for (uint8_t led_idx = 1; led_idx < NUM_LED_SOLID-1; led_idx++) {
+    // If led on
+    if (pin_led_solid_state[led_idx]) {
+      // Then turn off
+      pin_led_solid_state[led_idx] = 0;
+      leds->setPoint(PIN_LED_SOLID[led_idx][0], PIN_LED_SOLID[led_idx][1], false);
+    }
+    //If led off
+    else {
+      // Then turn off
+      pin_led_solid_state[led_idx] = 1;
+      leds->setPoint(PIN_LED_SOLID[led_idx][0], PIN_LED_SOLID[led_idx][1], true);
+    }
+  }
+  // Only check first led state, assume rest are same state
+  // Rewrite so we don't assume
+  // If shift leds already on, turn off edge effect LEDs (mutually exclusive)
+  if (pin_led_solid_state[1]) {
+    pin_led_solid_state[0] = 0;
+    pin_led_solid_state[NUM_LED_SOLID-1] = 0;
+    leds->setPoint(PIN_LED_SOLID[0][0], PIN_LED_SOLID[0][1], false);
+    leds->setPoint(PIN_LED_SOLID[NUM_LED_SOLID-1][0], PIN_LED_SOLID[NUM_LED_SOLID-1][1], false);
+  }
+  // Else if shift leds off, turn on edge effect LEDs (mutually exclusive)
+  else {
+    pin_led_solid_state[0] = 1;
+    pin_led_solid_state[NUM_LED_SOLID-1] = 1;
+    leds->setPoint(PIN_LED_SOLID[0][0], PIN_LED_SOLID[0][1], true);
+    leds->setPoint(PIN_LED_SOLID[NUM_LED_SOLID-1][0], PIN_LED_SOLID[NUM_LED_SOLID-1][1], true);
+  }
+}
 /*
 void leds__rpm_update_tach(uint16_t rpm) {
   uint8_t leds_to_turn_off;
@@ -131,26 +180,25 @@ void leds__rpm_update_flash(uint16_t rpm, uint32_t curr_millis_flash)
   if (rpm > SHIFT_THRESHOLD_RPM && rpm <= OVERREV_THRESHOLD_RPM) {
     leds__enable_shift();
   }
-  /*
-  // Else if between min. overrev threshold and rev limit threshold, toggle LED bar at OVERREV_THRESHOLD_FLASH_MS*2 Hz
+  
+  // Else if between min. overrev threshold and rev limit threshold, toggle LED bar at OVERREV_THRESHOLD_FLASH_MS Hz
   else if (rpm > OVERREV_THRESHOLD_RPM && rpm <= REVLIM_THRESHOLD_RPM) {
     // Time difference between last known toggle (prev_millis_overrev)
     // and current time (curr_millis_flash)
     if (curr_millis_flash-prev_millis_overrev >= OVERREV_THRESHOLD_FLASH_MS) {
       prev_millis_overrev = curr_millis_flash;
-      //leds__toggle_overrev();
+      leds__toggle_overrev();
     }
   }
-  // Else if between min. overrev threshold and rev limit threshold, toggle LED bar at OVERREV_THRESHOLD_FLASH_MS*2 Hz
+  // Else if between min. overrev threshold and rev limit threshold, toggle LED bar at REVLIM_THRESHOLD_FLASH_MS Hz
   else if (rpm > REVLIM_THRESHOLD_RPM) {
     // Time difference between last known toggle (prev_millis_revlim)
     // and current time (curr_millis_flash)
     if (curr_millis_flash-prev_millis_revlim >= REVLIM_THRESHOLD_FLASH_MS) {
       prev_millis_revlim = curr_millis_flash;
-      //leds__toggle_revlim();
+      leds__toggle_revlim();
     }
   }
-  */
   //Turn off all LEDs, nothing to show
   else {
     leds__disable_shift();
