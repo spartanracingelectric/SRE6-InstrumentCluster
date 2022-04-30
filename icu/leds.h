@@ -29,7 +29,7 @@ const uint8_t PIN_LED_RGB_B[NUM_LED_RGB][2] = {{4,0}, {4,2}, {4,4},
 void leds__init(MD_MAX72XX *leds_ptr);
 void leds__wake();
 void leds__start();
-void leds__rpm_update(uint16_t rpm);
+void leds__rpm_update_tach(uint16_t rpm);
 
 //create LEDs Update function that takes CAN data and changes LEDs
 

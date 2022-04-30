@@ -4,6 +4,8 @@ MD_MAX72XX *leds;
 
 unsigned long delaytime=65;
 
+uint16_t internal_timer_flash = 0;
+
 void leds__init(MD_MAX72XX *leds_ptr) {
   leds = leds_ptr;
   leds->begin();
@@ -45,7 +47,7 @@ void leds__wake() {
   }
 }
 
-void leds__rpm_update(uint16_t rpm) {
+void leds__rpm_update_tach(uint16_t rpm) {
   uint8_t leds_to_turn_off;
   uint8_t leds_to_turn_on = 0;
   switch(rpm) {
