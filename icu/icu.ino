@@ -16,12 +16,20 @@ U8G2_ST7565_NHD_C12864_F_4W_SW_SPI lcd_u8g2(U8G2_R2, PICO_LCD_SPI_SCK, PICO_LCD_
 // PAROLA_HW refers to an 8x8 LED matrix which we are sort of simulating
 MD_MAX72XX leds_md = MD_MAX72XX(MAX72XX_HARDWARE_TYPE, PICO_LED_SPI_CS, 1);
 
+uint16_t rpm;
+
 void setup()
 {
+  pinMode(PICO_CAN_SPI_CS,OUTPUT);
+  digitalWrite(PICO_CAN_SPI_CS,HIGH);
+  pinMode(PICO_LED_SPI_CS,OUTPUT);
+  digitalWrite(PICO_LED_SPI_CS,HIGH);
+
   //Serial.begin(115200);
   SPI.setSCK(PICO_CAN_SPI_SCK);
   SPI.setTX(PICO_CAN_SPI_MOSI);
   SPI.setRX(PICO_CAN_SPI_MISO);
+  SPI.setCS(PICO_CAN_SPI_CS);
   SPI.begin();
 
   // No need to initialize CAB here, as can.begin seems to hog the data
@@ -35,6 +43,7 @@ void setup()
   //Non functional as clearBuffer in loop overwrites for now
   lcd__print_default_screen_template();
   leds__wake();
+  //can__start();
   /*
   //LED Sniffing code
   delay(5000);
@@ -52,20 +61,20 @@ void setup()
 }
 
 //Test values for proof of concept
-uint8_t cnt = 0;
-uint16_t test_vals[] = {109, 250, 1259, 2400, 3658, 4815, 4405, 4623, 6042, 7404, 9480, 11400, 13004};
-uint16_t dly = 500;
+//uint8_t cnt = 0;
+//uint16_t test_vals[] = {109, 250, 1259, 2400, 3658, 4815, 4405, 4623, 6042, 7404, 9480, 11400, 12000, 13004};
+//uint16_t test_vals[] = {14600};
 
 void loop()
 {
+  uint32_t curr_millis = millis();
   can__start();
-  can__update();
+  delay(10);
+  //can__send_test();
+  can__receive();
+  rpm = can__get_rpm();
   can__stop();
-  leds__rpm_update(test_vals[cnt]);
-  lcd__print_rpm(test_vals[cnt]);
-  delay(dly);
-  cnt++;
-  if (cnt == (sizeof(test_vals)/sizeof(test_vals[0]))) {
-    cnt = 0;
-  }
+  leds__rpm_update_flash(rpm, curr_millis);
+  lcd__print_rpm(rpm, curr_millis);
+  //delay(500);
 }
