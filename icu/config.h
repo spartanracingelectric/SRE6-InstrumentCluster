@@ -19,6 +19,17 @@
 #define SERIAL_DEBUG_EN 0
 
 /*---------------------------------------------------------------------------/
+/ DRIVER PARAMETERS
+/---------------------------------------------------------------------------*/
+
+#define SHIFT_THRESHOLD_RPM 11600
+#define OVERREV_THRESHOLD_RPM (SHIFT_THRESHOLD_RPM+500)
+#define REVLIM_THRESHOLD_RPM (SHIFT_THRESHOLD_RPM+2000)
+//#define SHIFT_THRESHOLD_FLASH_MS
+#define OVERREV_THRESHOLD_FLASH_MS 250
+#define REVLIM_THRESHOLD_FLASH_MS 100
+
+/*---------------------------------------------------------------------------/
 / PIN INITIALIZATIONS
 /---------------------------------------------------------------------------*/
 
