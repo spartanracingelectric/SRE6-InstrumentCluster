@@ -62,6 +62,13 @@ void leds__enable_shift() {
     pin_led_solid_state[led_idx+1] = 1;
     leds->setPoint(PIN_LED_SOLID[led_idx+1][0], PIN_LED_SOLID[led_idx+1][1], true);
   }
+  //If edge LEDs turned on, turn off
+  if (pin_led_solid_state[1]) {
+    pin_led_solid_state[0] = 0;
+    pin_led_solid_state[NUM_LED_SOLID-1] = 0;
+    leds->setPoint(PIN_LED_SOLID[0][0], PIN_LED_SOLID[0][1], false);
+    leds->setPoint(PIN_LED_SOLID[NUM_LED_SOLID-1][0], PIN_LED_SOLID[NUM_LED_SOLID-1][1], false);
+  }
 }
 
 void leds__disable_shift() {
@@ -69,6 +76,14 @@ void leds__disable_shift() {
   for (uint8_t led_idx = 0; led_idx < NUM_LED_SOLID-2; led_idx++) {
     pin_led_solid_state[led_idx+1] = 0;
     leds->setPoint(PIN_LED_SOLID[led_idx+1][0], PIN_LED_SOLID[led_idx+1][1], false);
+  }
+}
+
+void leds__disable_all_solid() {
+  //Change internal state of all leds to LOW
+  for (uint8_t led_idx = 0; led_idx < NUM_LED_SOLID; led_idx++) {
+    pin_led_solid_state[led_idx] = 0;
+    leds->setPoint(PIN_LED_SOLID[led_idx][0], PIN_LED_SOLID[led_idx][1], false);
   }
 }
 
@@ -86,6 +101,13 @@ void leds__toggle_overrev() {
       pin_led_solid_state[led_idx] = 1;
       leds->setPoint(PIN_LED_SOLID[led_idx][0], PIN_LED_SOLID[led_idx][1], true);
     }
+  }
+  //If edge LEDs turned on, turn off
+  if (pin_led_solid_state[1]) {
+    pin_led_solid_state[0] = 0;
+    pin_led_solid_state[NUM_LED_SOLID-1] = 0;
+    leds->setPoint(PIN_LED_SOLID[0][0], PIN_LED_SOLID[0][1], false);
+    leds->setPoint(PIN_LED_SOLID[NUM_LED_SOLID-1][0], PIN_LED_SOLID[NUM_LED_SOLID-1][1], false);
   }
 }
 
@@ -201,7 +223,7 @@ void leds__rpm_update_flash(uint16_t rpm, uint32_t curr_millis_flash)
   }
   //Turn off all LEDs, nothing to show
   else {
-    leds__disable_shift();
+    leds__disable_all_solid();
   }
 
 }
