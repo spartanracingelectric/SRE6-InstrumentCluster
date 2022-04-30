@@ -12,19 +12,36 @@ void leds__init(MD_MAX72XX *leds_ptr) {
 void leds__wake() {
   for (int led_idx = 0; led_idx < NUM_LED_RGB; led_idx++) {
     leds->setPoint(PIN_LED_RGB_R[led_idx][0],PIN_LED_RGB_R[led_idx][1],true);
-    delay(250);
+    delay(30);
     leds->setPoint(PIN_LED_RGB_G[led_idx][0],PIN_LED_RGB_G[led_idx][1],true);
-    delay(250);
+    delay(30);
     leds->setPoint(PIN_LED_RGB_B[led_idx][0],PIN_LED_RGB_B[led_idx][1],true);
-    delay(250);
+    delay(30);
   }
   for (int led_idx = 0; led_idx < NUM_LED_RGB; led_idx++) {
     leds->setPoint(PIN_LED_RGB_R[led_idx][0],PIN_LED_RGB_R[led_idx][1],false);
-    delay(250);
+    delay(30);
     leds->setPoint(PIN_LED_RGB_G[led_idx][0],PIN_LED_RGB_G[led_idx][1],false);
-    delay(250);
+    delay(30);
     leds->setPoint(PIN_LED_RGB_B[led_idx][0],PIN_LED_RGB_B[led_idx][1],false);
-    delay(250);
+    delay(30);
+  }
+  for (uint8_t led_idx = 0; led_idx < NUM_LED_SOLID; led_idx++) {
+    leds->setPoint(PIN_LED_SOLID[led_idx][0],PIN_LED_SOLID[led_idx][1],true);
+  }
+  delay(75);
+  //Turn off unused LEDS
+  for (uint8_t led_idx = 0; led_idx < NUM_LED_SOLID; led_idx++) {
+    leds->setPoint(PIN_LED_SOLID[NUM_LED_SOLID-led_idx][0],PIN_LED_SOLID[NUM_LED_SOLID-led_idx][1],false);
+  }
+  delay(75);
+  for (uint8_t led_idx = 0; led_idx < NUM_LED_SOLID; led_idx++) {
+    leds->setPoint(PIN_LED_SOLID[led_idx][0],PIN_LED_SOLID[led_idx][1],true);
+  }
+  delay(75);
+  //Turn off unused LEDS
+  for (uint8_t led_idx = 0; led_idx < NUM_LED_SOLID; led_idx++) {
+    leds->setPoint(PIN_LED_SOLID[NUM_LED_SOLID-led_idx][0],PIN_LED_SOLID[NUM_LED_SOLID-led_idx][1],false);
   }
 }
 
