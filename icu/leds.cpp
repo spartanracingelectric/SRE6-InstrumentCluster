@@ -2,9 +2,16 @@
 
 MD_MAX72XX *leds;
 
-unsigned long delaytime=65;
+//unsigned long delaytime=65;
 
-uint16_t internal_timer_flash = 0;
+// Keep state of leds to easily toggle later
+// Default off
+uint8_t pin_led_solid_state[NUM_LED_SOLID] = {0};
+
+//Internal variables
+uint32_t prev_millis_overrev = 0;
+uint32_t prev_millis_revlim = 0;
+
 
 void leds__init(MD_MAX72XX *leds_ptr) {
   leds = leds_ptr;
@@ -28,25 +35,44 @@ void leds__wake() {
     leds->setPoint(PIN_LED_RGB_B[led_idx][0],PIN_LED_RGB_B[led_idx][1],false);
     delay(30);
   }
+  //Turn on ALL LEDS
   for (uint8_t led_idx = 0; led_idx < NUM_LED_SOLID; led_idx++) {
     leds->setPoint(PIN_LED_SOLID[led_idx][0],PIN_LED_SOLID[led_idx][1],true);
   }
   delay(75);
-  //Turn off unused LEDS
+  //Turn off ALL LEDS
   for (uint8_t led_idx = 0; led_idx < NUM_LED_SOLID; led_idx++) {
-    leds->setPoint(PIN_LED_SOLID[NUM_LED_SOLID-led_idx][0],PIN_LED_SOLID[NUM_LED_SOLID-led_idx][1],false);
+    leds->setPoint(PIN_LED_SOLID[led_idx][0],PIN_LED_SOLID[led_idx][1],false);
   }
   delay(75);
+  //Turn on ALL LEDS
   for (uint8_t led_idx = 0; led_idx < NUM_LED_SOLID; led_idx++) {
     leds->setPoint(PIN_LED_SOLID[led_idx][0],PIN_LED_SOLID[led_idx][1],true);
   }
   delay(75);
-  //Turn off unused LEDS
+  //Turn off ALL LEDS
   for (uint8_t led_idx = 0; led_idx < NUM_LED_SOLID; led_idx++) {
-    leds->setPoint(PIN_LED_SOLID[NUM_LED_SOLID-led_idx][0],PIN_LED_SOLID[NUM_LED_SOLID-led_idx][1],false);
+    leds->setPoint(PIN_LED_SOLID[led_idx][0],PIN_LED_SOLID[led_idx][1],false);
   }
 }
 
+void leds__enable_shift() {
+  //Change internal state of all shift leds to HIGH (exclude LED1 and LED10)
+  for (uint8_t led_idx = 0; led_idx < NUM_LED_SOLID-2; led_idx++) {
+    pin_led_solid_state[led_idx+1] = 1;
+    leds->setPoint(PIN_LED_SOLID[led_idx+1][0], PIN_LED_SOLID[led_idx+1][1], true);
+  }
+}
+
+void leds__disable_shift() {
+  //Change internal state of all shift leds to LOW (exclude LED1 and LED10)
+  for (uint8_t led_idx = 0; led_idx < NUM_LED_SOLID-2; led_idx++) {
+    pin_led_solid_state[led_idx+1] = 0;
+    leds->setPoint(PIN_LED_SOLID[led_idx+1][0], PIN_LED_SOLID[led_idx+1][1], false);
+  }
+}
+
+/*
 void leds__rpm_update_tach(uint16_t rpm) {
   uint8_t leds_to_turn_off;
   uint8_t leds_to_turn_on = 0;
@@ -95,6 +121,41 @@ void leds__rpm_update_tach(uint16_t rpm) {
   for (uint8_t led_idx = 0; led_idx < leds_to_turn_off; led_idx++) {
     leds->setPoint(PIN_LED_SOLID[NUM_LED_SOLID-led_idx][0],PIN_LED_SOLID[NUM_LED_SOLID-led_idx][1],false);
   }
+}
+*/
+
+void leds__rpm_update_flash(uint16_t rpm, uint32_t curr_millis_flash)
+{
+
+  // If between min. shift threshold and overrev threshold, solid shift LED bar
+  if (rpm > SHIFT_THRESHOLD_RPM && rpm <= OVERREV_THRESHOLD_RPM) {
+    leds__enable_shift();
+  }
+  /*
+  // Else if between min. overrev threshold and rev limit threshold, toggle LED bar at OVERREV_THRESHOLD_FLASH_MS*2 Hz
+  else if (rpm > OVERREV_THRESHOLD_RPM && rpm <= REVLIM_THRESHOLD_RPM) {
+    // Time difference between last known toggle (prev_millis_overrev)
+    // and current time (curr_millis_flash)
+    if (curr_millis_flash-prev_millis_overrev >= OVERREV_THRESHOLD_FLASH_MS) {
+      prev_millis_overrev = curr_millis_flash;
+      //leds__toggle_overrev();
+    }
+  }
+  // Else if between min. overrev threshold and rev limit threshold, toggle LED bar at OVERREV_THRESHOLD_FLASH_MS*2 Hz
+  else if (rpm > REVLIM_THRESHOLD_RPM) {
+    // Time difference between last known toggle (prev_millis_revlim)
+    // and current time (curr_millis_flash)
+    if (curr_millis_flash-prev_millis_revlim >= REVLIM_THRESHOLD_FLASH_MS) {
+      prev_millis_revlim = curr_millis_flash;
+      //leds__toggle_revlim();
+    }
+  }
+  */
+  //Turn off all LEDs, nothing to show
+  else {
+    leds__disable_shift();
+  }
+
 }
 
 /*
