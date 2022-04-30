@@ -11,7 +11,7 @@ void lcd__print14(uint8_t x, uint8_t y, char *str);                 //Print str 
 void lcd__print18(uint8_t x, uint8_t y, char *str);                 //Print str with Helvetica Bold Size 18
 void lcd__print24(uint8_t x, uint8_t y, char *str);                 //Print str with Helvetica Bold Size 24
 void lcd__print_default_screen_template();
-void lcd__print_rpm(uint16_t rpm);
+void lcd__print_rpm(uint16_t rpm, uint32_t curr_millis_lcd);
 
 
 #endif /* LCD_H_ */
