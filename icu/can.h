@@ -6,7 +6,9 @@
 
 
 void can__start();
-void can__update();
+void can__send_test();
+void can__receive();
+uint16_t can__get_rpm();
 void can__stop();
 
 
