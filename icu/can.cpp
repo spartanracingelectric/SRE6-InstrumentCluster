@@ -26,7 +26,7 @@ static void can__dummy_receive (const CANMessage & inMessage) {
   //Serial.println ("Received Gear " + curr_gear) ;
 }
 
-const ACAN2515Mask rxm0 = standard2515Mask ((CAN_RPM_ADDR), 0, 0) ;
+const ACAN2515Mask rxm0 = standard2515Mask (0x7FF, 0, 0) ;
 //const ACAN2515Mask rxm1 = standard2515Mask (0x7FF, 0, 0) ;
 const ACAN2515AcceptanceFilter filters [] = {
 {standard2515Filter (CAN_RPM_ADDR, 0, 0), can__rpm_receive}, // RXF0
