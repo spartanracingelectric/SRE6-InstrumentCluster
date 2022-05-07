@@ -21,35 +21,35 @@ void leds__init(MD_MAX72XX *leds_ptr) {
 void leds__wake() {
   for (int led_idx = 0; led_idx < NUM_LED_RGB; led_idx++) {
     leds->setPoint(PIN_LED_RGB_R[led_idx][0],PIN_LED_RGB_R[led_idx][1],true);
-    delay(30);
+    delay(50);
     leds->setPoint(PIN_LED_RGB_G[led_idx][0],PIN_LED_RGB_G[led_idx][1],true);
-    delay(30);
+    delay(50);
     leds->setPoint(PIN_LED_RGB_B[led_idx][0],PIN_LED_RGB_B[led_idx][1],true);
-    delay(30);
+    delay(50);
   }
   for (int led_idx = 0; led_idx < NUM_LED_RGB; led_idx++) {
     leds->setPoint(PIN_LED_RGB_R[led_idx][0],PIN_LED_RGB_R[led_idx][1],false);
-    delay(30);
+    delay(50);
     leds->setPoint(PIN_LED_RGB_G[led_idx][0],PIN_LED_RGB_G[led_idx][1],false);
-    delay(30);
+    delay(50);
     leds->setPoint(PIN_LED_RGB_B[led_idx][0],PIN_LED_RGB_B[led_idx][1],false);
-    delay(30);
+    delay(50);
   }
   //Turn on ALL LEDS
   for (uint8_t led_idx = 0; led_idx < NUM_LED_SOLID; led_idx++) {
     leds->setPoint(PIN_LED_SOLID[led_idx][0],PIN_LED_SOLID[led_idx][1],true);
   }
-  delay(75);
+  delay(100);
   //Turn off ALL LEDS
   for (uint8_t led_idx = 0; led_idx < NUM_LED_SOLID; led_idx++) {
     leds->setPoint(PIN_LED_SOLID[led_idx][0],PIN_LED_SOLID[led_idx][1],false);
   }
-  delay(75);
+  delay(100);
   //Turn on ALL LEDS
   for (uint8_t led_idx = 0; led_idx < NUM_LED_SOLID; led_idx++) {
     leds->setPoint(PIN_LED_SOLID[led_idx][0],PIN_LED_SOLID[led_idx][1],true);
   }
-  delay(75);
+  delay(100);
   //Turn off ALL LEDS
   for (uint8_t led_idx = 0; led_idx < NUM_LED_SOLID; led_idx++) {
     leds->setPoint(PIN_LED_SOLID[led_idx][0],PIN_LED_SOLID[led_idx][1],false);
