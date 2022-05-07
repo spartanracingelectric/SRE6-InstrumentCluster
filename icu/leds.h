@@ -1,9 +1,9 @@
+#ifndef LEDS_H_
+#define LEDS_H_
+
 #include <Arduino.h>
 #include <MD_MAX72xx.h>
 #include "config.h"
-
-#ifndef LEDS_H_
-#define LEDS_H_
 
 /*---------------------------------------------------------------------------/
 / LED MAP TO MAX7219 ROW/COLUMN
@@ -31,6 +31,7 @@ void leds__wake();
 void leds__start();
 void leds__rpm_update_tach(uint16_t rpm);
 void leds__rpm_update_flash(uint16_t rpm, uint32_t curr_millis);
+void leds__set_brightness(uint8_t brightness_value);
 
 //create LEDs Update function that takes CAN data and changes LEDs
 

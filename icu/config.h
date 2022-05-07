@@ -113,4 +113,9 @@
 #error "Select a powertrain type (C for Combustion or E for Electric)"
 #endif
 
+/*---------------------------------------------------------------------------/
+/ HELPFUL MACROS
+/---------------------------------------------------------------------------*/
+#define MAX_LED_BRIGHTNESS 0xF
+
 #endif /* CONF_H_ */

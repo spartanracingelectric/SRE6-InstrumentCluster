@@ -228,6 +228,13 @@ void leds__rpm_update_flash(uint16_t rpm, uint32_t curr_millis_flash)
 
 }
 
+void leds__set_brightness(uint8_t brightness_value)
+{
+  // SETS BRIGHTNESS VALUE
+  // Range is 0 (off) to 0xF (full bright)
+  leds->control(MD_MAX72XX::INTENSITY, brightness_value);
+}
+
 /*
 void leds__wake() {
   lc.shutdown(0,false);
