@@ -1,8 +1,8 @@
-#include <ACAN2515.h>
-#include <Arduino.h>
-
 #ifndef CAN_H_
 #define CAN_H_
+
+#include <ACAN2515.h>
+#include <Arduino.h>
 
 
 void can__start();
