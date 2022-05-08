@@ -105,7 +105,7 @@ void lcd__print_gear(uint8_t gear)
         //We can assume gear is one digit based on first conditional
         gear_str[0] = gear + '0';
     }
-    lcd__print24(18, 30, gear_str);
+    lcd__print24(54, 60, gear_str);
 }
 
 void lcd__update_screen(uint16_t rpm, uint8_t gear, uint32_t curr_millis_lcd)
