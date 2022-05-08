@@ -228,7 +228,7 @@ void leds__rpm_update_flash(uint16_t rpm, uint8_t gear, uint32_t curr_millis_fla
       break;
     default:
       //Default to first gear value
-      gear_shift_threshold_rpm = G12_SHIFT_THRESHOLD_RPM;
+      gear_shift_threshold_rpm = DEFAULT_SHIFT_THRESHOLD_RPM;
       break;
   }
 

@@ -21,6 +21,7 @@
 / DRIVER PARAMETERS
 /---------------------------------------------------------------------------*/
 
+#define DEFAULT_SHIFT_THRESHOLD_RPM 11500
 #define G12_SHIFT_THRESHOLD_RPM 11800
 #define G23_SHIFT_THRESHOLD_RPM 11600
 #define G34_SHIFT_THRESHOLD_RPM 11400
