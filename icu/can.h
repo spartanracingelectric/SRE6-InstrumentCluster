@@ -9,6 +9,7 @@ void can__start();
 void can__send_test();
 void can__receive();
 uint16_t can__get_rpm();
+uint8_t can__get_gear();
 void can__stop();
 
 

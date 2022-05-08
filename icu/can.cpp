@@ -43,6 +43,11 @@ uint16_t can__get_rpm()
   return curr_rpm;
 }
 
+uint8_t can__get_gear()
+{
+  return curr_gear;
+}
+
 void can__start()
 {
   
