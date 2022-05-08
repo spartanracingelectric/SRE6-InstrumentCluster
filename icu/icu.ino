@@ -78,6 +78,7 @@ void loop()
   gear = can__get_gear();
   can__stop();
   leds__rpm_update_flash(rpm, gear, curr_millis);
-  lcd__print_rpm(rpm, curr_millis);
+  //lcd__print_rpm(rpm, curr_millis);
+  lcd__update_screen(rpm, gear, curr_millis);
   //delay(500);
 }

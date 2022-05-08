@@ -35,7 +35,7 @@
 #define OVERREV_THRESHOLD_FLASH_MS 250
 #define REVLIM_THRESHOLD_FLASH_MS 100
 
-#define LCD_RPM_UPDATE_MS 500
+#define LCD_UPDATE_MS 500
 
 /*---------------------------------------------------------------------------/
 / PIN INITIALIZATIONS
