@@ -204,14 +204,44 @@ void leds__rpm_update_tach(uint16_t rpm) {
 
 void leds__rpm_update_flash(uint16_t rpm, uint8_t gear, uint32_t curr_millis_flash)
 {
+  //Variable to hold shift RPM value based on current gear
+  uint16_t gear_shift_threshold_rpm;
+  //Variable to hold overrev RPM value based on current gear
+  uint16_t gear_overrev_threshold_rpm;
+
+  switch (gear) {
+    case 1:
+      //If in gear 1, turn shift light on based on value of G12_SHIFT_THRESHOLD_RPM
+      gear_shift_threshold_rpm = G12_SHIFT_THRESHOLD_RPM;
+      break;
+    case 2:
+      gear_shift_threshold_rpm = G23_SHIFT_THRESHOLD_RPM;
+      break;
+    case 3:
+      gear_shift_threshold_rpm = G34_SHIFT_THRESHOLD_RPM;
+      break;
+    case 4:
+      gear_shift_threshold_rpm = G45_SHIFT_THRESHOLD_RPM;
+      break;
+    case 5:
+      gear_shift_threshold_rpm = G56_SHIFT_THRESHOLD_RPM;
+      break;
+    default:
+      //Default to first gear value
+      gear_shift_threshold_rpm = G12_SHIFT_THRESHOLD_RPM;
+      break;
+  }
+
+  //Add overrev adder to shift threshold to find overrev shift point based on current gear
+  gear_overrev_threshold_rpm = gear_shift_threshold_rpm + OVERREV_THRESHOLD_RPM_ADDER;
 
   // If between min. shift threshold and overrev threshold, solid shift LED bar
-  if (rpm > SHIFT_THRESHOLD_RPM && rpm <= OVERREV_THRESHOLD_RPM) {
+  if (rpm > gear_shift_threshold_rpm && rpm <= gear_overrev_threshold_rpm) {
     leds__enable_shift();
   }
   
   // Else if between min. overrev threshold and rev limit threshold, toggle LED bar at OVERREV_THRESHOLD_FLASH_MS Hz
-  else if (rpm > OVERREV_THRESHOLD_RPM && rpm <= REVLIM_THRESHOLD_RPM) {
+  else if (rpm > gear_overrev_threshold_rpm && rpm <= REVLIM_THRESHOLD_RPM) {
     // Time difference between last known toggle (prev_millis_overrev)
     // and current time (curr_millis_flash)
     if (curr_millis_flash-prev_millis_overrev >= OVERREV_THRESHOLD_FLASH_MS) {
