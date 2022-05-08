@@ -13,12 +13,14 @@ uint32_t prev_millis_overrev = 0;
 uint32_t prev_millis_revlim = 0;
 
 
-void leds__init(MD_MAX72XX *leds_ptr) {
+void leds__init(MD_MAX72XX *leds_ptr)
+{
   leds = leds_ptr;
   leds->begin();
 }
 
-void leds__wake() {
+void leds__wake()
+{
   for (int led_idx = 0; led_idx < NUM_LED_RGB; led_idx++) {
     leds->setPoint(PIN_LED_RGB_R[led_idx][0],PIN_LED_RGB_R[led_idx][1],true);
     delay(50);
@@ -56,7 +58,8 @@ void leds__wake() {
   }
 }
 
-void leds__enable_shift() {
+void leds__enable_shift()
+{
   //Change internal state of all shift leds to HIGH (exclude LED1 and LED10)
   for (uint8_t led_idx = 0; led_idx < NUM_LED_SOLID-2; led_idx++) {
     pin_led_solid_state[led_idx+1] = 1;
@@ -71,7 +74,8 @@ void leds__enable_shift() {
   }
 }
 
-void leds__disable_shift() {
+void leds__disable_shift()
+{
   //Change internal state of all shift leds to LOW (exclude LED1 and LED10)
   for (uint8_t led_idx = 0; led_idx < NUM_LED_SOLID-2; led_idx++) {
     pin_led_solid_state[led_idx+1] = 0;
@@ -79,7 +83,8 @@ void leds__disable_shift() {
   }
 }
 
-void leds__disable_all_solid() {
+void leds__disable_all_solid()
+{
   //Change internal state of all leds to LOW
   for (uint8_t led_idx = 0; led_idx < NUM_LED_SOLID; led_idx++) {
     pin_led_solid_state[led_idx] = 0;
@@ -87,7 +92,8 @@ void leds__disable_all_solid() {
   }
 }
 
-void leds__toggle_overrev() {
+void leds__toggle_overrev()
+{
   for (uint8_t led_idx = 1; led_idx < NUM_LED_SOLID-1; led_idx++) {
     // If led on
     if (pin_led_solid_state[led_idx]) {
@@ -111,7 +117,8 @@ void leds__toggle_overrev() {
   }
 }
 
-void leds__toggle_revlim() {
+void leds__toggle_revlim()
+{
   for (uint8_t led_idx = 1; led_idx < NUM_LED_SOLID-1; led_idx++) {
     // If led on
     if (pin_led_solid_state[led_idx]) {

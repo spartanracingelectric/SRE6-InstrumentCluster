@@ -10,17 +10,20 @@ ACAN2515Settings settings (QUARTZ_FREQUENCY, 500UL * 1000UL) ; // CAN bit rate 5
 uint16_t curr_rpm = 0;
 uint8_t curr_gear = 0;
 
-static void can__rpm_receive (const CANMessage & inMessage) {
+static void can__rpm_receive (const CANMessage & inMessage)
+{
   curr_rpm = ((inMessage.data[1]) | (inMessage.data[0] << 8));
   //Serial.println ("Received RPM " + curr_rpm) ;
 }
 
-static void can__gear_receive (const CANMessage & inMessage) {
+static void can__gear_receive (const CANMessage & inMessage)
+{
   curr_gear = inMessage.data[1];
   //Serial.println ("Received Gear " + curr_gear) ;
 }
 
-static void can__dummy_receive (const CANMessage & inMessage) {
+static void can__dummy_receive (const CANMessage & inMessage)
+{
   uint8_t durr;
   //curr_gear = inMessage.data[1];
   //Serial.println ("Received Gear " + curr_gear) ;
@@ -28,10 +31,11 @@ static void can__dummy_receive (const CANMessage & inMessage) {
 
 const ACAN2515Mask rxm0 = standard2515Mask (0x7FF, 0, 0) ;
 //const ACAN2515Mask rxm1 = standard2515Mask (0x7FF, 0, 0) ;
-const ACAN2515AcceptanceFilter filters [] = {
-{standard2515Filter (CAN_RPM_ADDR, 0, 0), can__rpm_receive}, // RXF0
-{standard2515Filter (CAN_GEAR_ADDR, 0, 0), can__gear_receive} // RXF1
-//{standard2515Filter (0x7FE, 0, 0), can__dummy_receive}, // RXF2
+const ACAN2515AcceptanceFilter filters [] =
+{
+  {standard2515Filter (CAN_RPM_ADDR, 0, 0), can__rpm_receive}, // RXF0
+  {standard2515Filter (CAN_GEAR_ADDR, 0, 0), can__gear_receive} // RXF1
+  //{standard2515Filter (0x7FE, 0, 0), can__dummy_receive}, // RXF2
 } ;
 
 uint16_t can__get_rpm()
