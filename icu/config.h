@@ -1,11 +1,10 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-/****************************************************************************/
-/*  INSTRUMENT CLUSTER - SETUP CONFIGURATION FILE (for ports, etc)      */
-/*                                      */
-/*  DUE TO F_CPU, conf.h MUST BE INCLUDED BEFORE ANY <avr/delay.h>      */
-/****************************************************************************/
+/********************************************************************/
+/*  INSTRUMENT CLUSTER - SETUP CONFIGURATION FILE (for ports, etc)  */
+/*                                                                  */
+/********************************************************************/
 
 // Board Revision, select:
 // 'A' for Rev A
