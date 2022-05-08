@@ -17,6 +17,7 @@ U8G2_ST7565_NHD_C12864_F_4W_SW_SPI lcd_u8g2(U8G2_R2, PICO_LCD_SPI_SCK, PICO_LCD_
 MD_MAX72XX leds_md = MD_MAX72XX(MAX72XX_HARDWARE_TYPE, PICO_LED_SPI_CS, 1);
 
 uint16_t rpm;
+uint8_t gear;
 
 void setup()
 {
@@ -74,8 +75,9 @@ void loop()
   //can__send_test();
   can__receive();
   rpm = can__get_rpm();
+  gear = can__get_gear();
   can__stop();
-  leds__rpm_update_flash(rpm, curr_millis);
+  leds__rpm_update_flash(rpm, gear, curr_millis);
   lcd__print_rpm(rpm, curr_millis);
   //delay(500);
 }

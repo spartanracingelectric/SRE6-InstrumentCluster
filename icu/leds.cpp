@@ -202,7 +202,7 @@ void leds__rpm_update_tach(uint16_t rpm) {
 }
 */
 
-void leds__rpm_update_flash(uint16_t rpm, uint32_t curr_millis_flash)
+void leds__rpm_update_flash(uint16_t rpm, uint8_t gear, uint32_t curr_millis_flash)
 {
 
   // If between min. shift threshold and overrev threshold, solid shift LED bar
