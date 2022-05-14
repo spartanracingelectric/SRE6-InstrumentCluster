@@ -9,7 +9,8 @@
 // Board Revision, select:
 // 'A' for Rev A
 // 'B' for Rev B
-#define BOARD_REVISION 'A'
+//#define BOARD_REVISION 'A'
+#define BOARD_REVISION 'B'
 //#define BOARD_REVISION 'B' //Potentially unused
 #define POWERTRAIN_TYPE 'C'
 //#define POWERTRAIN_TYPE 'E'
@@ -59,9 +60,25 @@
 #define PICO_CAN_SPI_MOSI   19
 #define PICO_CAN_SPI_MISO   16
 #define PICO_CAN_SPI_CS     17
-#endif
 
-//ADD REV B PINOUT
+//  Rev B
+#elif (BOARD_REVISION == 'B')
+//  LCD
+#define PICO_LCD_SPI_CS     5
+#define PICO_LCD_SPI_MOSI   3
+#define PICO_LCD_SPI_SCK    2
+#define PICO_LCD_A0         4
+#define PICO_LCD_RST        1
+//  LEDS, MAX7219
+#define PICO_LED_SPI_SCK    18
+#define PICO_LED_SPI_MOSI   19
+#define PICO_LED_SPI_CS     17
+//CAN, MCP2515
+#define PICO_CAN_SPI_SCK    10
+#define PICO_CAN_SPI_MOSI   11
+#define PICO_CAN_SPI_MISO   12
+#define PICO_CAN_SPI_CS     13
+#endif
 
 /*---------------------------------------------------------------------------/
 / CUSTOM CONFIGURATION VARIABLES
