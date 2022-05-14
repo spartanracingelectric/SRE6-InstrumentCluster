@@ -27,11 +27,19 @@ void setup()
   digitalWrite(PICO_LED_SPI_CS,HIGH);
 
   //Serial.begin(115200);
+#if (BOARD_REVISION == 'A')
   SPI.setSCK(PICO_CAN_SPI_SCK);
   SPI.setTX(PICO_CAN_SPI_MOSI);
   SPI.setRX(PICO_CAN_SPI_MISO);
   SPI.setCS(PICO_CAN_SPI_CS);
   SPI.begin();
+#elif (BOARD_REVISION == 'B')
+  SPI1.setSCK(PICO_CAN_SPI_SCK);
+  SPI1.setTX(PICO_CAN_SPI_MOSI);
+  SPI1.setRX(PICO_CAN_SPI_MISO);
+  SPI1.setCS(PICO_CAN_SPI_CS);
+  SPI1.begin();
+#endif
 
   // No need to initialize CAB here, as can.begin seems to hog the data
   // buffer which in turn stalls the MAX7219 and therefore the whole program
@@ -45,7 +53,9 @@ void setup()
   lcd__print_default_screen_template();
   leds__set_brightness(MAX_LED_BRIGHTNESS);
   leds__wake();
+//#if (BOARD_REVISION == 'B')
   //can__start();
+//#endif
   /*
   //LED Sniffing code
   delay(5000);
@@ -70,13 +80,17 @@ void setup()
 void loop()
 {
   uint32_t curr_millis = millis();
+//#if (BOARD_REVISION == 'A')
   can__start();
-  delay(10);
-  //can__send_test();
-  can__receive();
-  rpm = can__get_rpm();
-  gear = can__get_gear();
+//#endif
+  //delay(10);
+  can__send_test();
+  //can__receive();
+  //rpm = can__get_rpm();
+  //gear = can__get_gear();
+//#if (BOARD_REVISION == 'A')
   can__stop();
+//#endif
   leds__rpm_update_flash(rpm, gear, curr_millis);
   //lcd__print_rpm(rpm, curr_millis);
   lcd__update_screen(rpm, gear, curr_millis);
