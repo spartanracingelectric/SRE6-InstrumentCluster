@@ -78,6 +78,8 @@
 #define PICO_CAN_SPI_MOSI   11
 #define PICO_CAN_SPI_MISO   12
 #define PICO_CAN_SPI_CS     13
+#define PICO_CAN_INT        14
+#define PICO_CAN_RST        15
 #endif
 
 /*---------------------------------------------------------------------------/
