@@ -1,6 +1,7 @@
 #ifndef CAN_H_
 #define CAN_H_
 
+#include <SPI.h>
 #include <ACAN2515.h>
 #include <Arduino.h>
 
