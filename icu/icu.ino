@@ -34,10 +34,16 @@ void setup()
   SPI.setCS(PICO_CAN_SPI_CS);
   SPI.begin();
 #elif (BOARD_REVISION == 'B')
+  pinMode(PICO_CAN_RST, OUTPUT);
+  digitalWrite(PICO_CAN_RST, HIGH);
+  SPI.setSCK(PICO_LED_SPI_SCK);
+  SPI.setTX(PICO_LED_SPI_MOSI);
+  SPI.setCS(PICO_LED_SPI_CS);
   SPI1.setSCK(PICO_CAN_SPI_SCK);
   SPI1.setTX(PICO_CAN_SPI_MOSI);
   SPI1.setRX(PICO_CAN_SPI_MISO);
   SPI1.setCS(PICO_CAN_SPI_CS);
+  SPI.begin();
   SPI1.begin();
 #endif
 
@@ -53,9 +59,9 @@ void setup()
   lcd__print_default_screen_template();
   leds__set_brightness(MAX_LED_BRIGHTNESS);
   leds__wake();
-//#if (BOARD_REVISION == 'B')
-  //can__start();
-//#endif
+#if (BOARD_REVISION == 'B')
+  can__start();
+#endif
   /*
   //LED Sniffing code
   delay(5000);
@@ -80,17 +86,17 @@ void setup()
 void loop()
 {
   uint32_t curr_millis = millis();
-//#if (BOARD_REVISION == 'A')
+#if (BOARD_REVISION == 'A')
   can__start();
-//#endif
-  //delay(10);
-  can__send_test();
-  //can__receive();
-  //rpm = can__get_rpm();
-  //gear = can__get_gear();
-//#if (BOARD_REVISION == 'A')
+  delay(10);
+#endif
+  //can__send_test();
+  can__receive();
+  rpm = can__get_rpm();
+  gear = can__get_gear();
+#if (BOARD_REVISION == 'A')
   can__stop();
-//#endif
+#endif
   leds__rpm_update_flash(rpm, gear, curr_millis);
   //lcd__print_rpm(rpm, curr_millis);
   lcd__update_screen(rpm, gear, curr_millis);
