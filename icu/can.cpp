@@ -2,7 +2,11 @@
 #include "config.h"
 
 //Skip INT pin for Rev A, set to 0
+#if (BOARD_REVISION == 'A')
 ACAN2515 can (PICO_CAN_SPI_CS, SPI, 15);
+#elif (BOARD_REVISION == 'B')
+ACAN2515 can (PICO_CAN_SPI_CS, SPI1, PICO_CAN_INT);
+#endif
 
 static const uint32_t QUARTZ_FREQUENCY = 16UL * 1000UL * 1000UL; // 16 MHz
 ACAN2515Settings settings (QUARTZ_FREQUENCY, 500UL * 1000UL) ; // CAN bit rate 500s kb/s
@@ -60,7 +64,7 @@ void can__start()
   // With filter
   const uint16_t errorCode = can.begin (settings, [] { can.isr () ; },
                                         rxm0, filters, 2) ;
-  /*
+  
   if (errorCode == 0) {
     Serial.print ("Bit Rate prescaler: ") ;
     Serial.println (settings.mBitRatePrescaler) ;
@@ -86,11 +90,11 @@ void can__start()
     Serial.print ("Configuration error 0x") ;
     Serial.println (errorCode, HEX) ;
   }
-  */
+  
   //Non-zero indicates error
   if (errorCode) {
-    //Serial.print ("Configuration error 0x") ;
-    //Serial.println (errorCode, HEX);
+    Serial.print ("Configuration error 0x") ;
+    Serial.println (errorCode, HEX);
   }
  
 }
@@ -155,7 +159,7 @@ void can__receive()
   */
   if (can.available ()) {
     can.receive (frame) ;
-    //Serial.println((frame.data[1]) | (frame.data[0] << 8));
+    Serial.println((frame.data[1]) | (frame.data[0] << 8));
   }
   
 }
