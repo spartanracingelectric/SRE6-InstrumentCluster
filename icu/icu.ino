@@ -116,6 +116,14 @@ void loop()
 #endif
   leds__rpm_update_flash(rpm, gear, curr_millis);
   //lcd__print_rpm(rpm, curr_millis);
-  lcd__update_screen(rpm, gear, lv, etemp, oiltemp, drs, curr_millis);
+   if(POWERTRAIN_TYPE == 'C')
+  {
+//    lcd__update_screen(rpm, gear, lv, etemp, oiltemp, drs, curr_millis);
+    lcd__update_screenE(hv, soc, lv, etemp, oiltemp, drs, curr_millis);
+
+  }else if(POWERTRAIN_TYPE == 'E')
+  {
+    lcd__update_screenE(hv, soc, lv, etemp, oiltemp, drs, curr_millis);
+  }
   //delay(500);
 }
