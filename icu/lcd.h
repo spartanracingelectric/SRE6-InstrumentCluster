@@ -24,7 +24,7 @@ void lcd__print_soc(uint8_t soc); // State of charge 0-100%
 void lcd__print_lv(uint8_t lv); // low voltage battery soc
 void lcd__print_etemp(uint8_t etemp); // Accumulator/Engine temperature
 void lcd__print_oiltemp(uint8_t oiltemp); // Oil coolant? temperature
-void lcd__print_drs(uint8_t drs); // Drag Reduction System: Open or Closed
+void lcd__print_drs(uint8_t drs); // Drag Reduction System: Open or Closed - CAN: 0 or 1
 //void lcd_print__tiretemp(uint8_t tiretemp); // Tire temperatures multiple variables?
 
 
