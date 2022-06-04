@@ -8,7 +8,8 @@
 #endif
 
 // LCD Object Initialization
-// Args: (U8G2_R0/Rotate, SCK, MOSI, CS, A0/DC, RST)
+// Args: (U8G2_R0/Rotate, SCK, MOSI, CS, A0/DC, RST) clock and data from SW_SPI: PICO_LCD_SPI_SCK, PICO_LCD_SPI_MOSI,
+//U8G2_ST7565_NHD_C12864_F_4W_HW_SPI lcd_u8g2(U8G2_R2, PICO_LCD_SPI_CS, PICO_LCD_A0, PICO_LCD_RST);
 U8G2_ST7565_NHD_C12864_F_4W_SW_SPI lcd_u8g2(U8G2_R2, PICO_LCD_SPI_SCK, PICO_LCD_SPI_MOSI, PICO_LCD_SPI_CS, PICO_LCD_A0, PICO_LCD_RST);
 
 // LED Object Initialization
@@ -18,13 +19,19 @@ MD_MAX72XX leds_md = MD_MAX72XX(MAX72XX_HARDWARE_TYPE, PICO_LED_SPI_CS, 1);
 
 uint16_t rpm;
 uint8_t gear;
+uint16_t hv; // is it unsigned int 16? since it's supposed to be a float
+uint8_t soc;
+uint8_t lv;
+uint8_t etemp;
+uint8_t oiltemp;
+uint8_t drs;
 
 void setup()
 {
-  pinMode(PICO_CAN_SPI_CS,OUTPUT);
-  digitalWrite(PICO_CAN_SPI_CS,HIGH);
-  pinMode(PICO_LED_SPI_CS,OUTPUT);
-  digitalWrite(PICO_LED_SPI_CS,HIGH);
+  pinMode(PICO_CAN_SPI_CS, OUTPUT);
+  digitalWrite(PICO_CAN_SPI_CS, HIGH);
+  pinMode(PICO_LED_SPI_CS, OUTPUT);
+  digitalWrite(PICO_LED_SPI_CS, HIGH);
 
   //Serial.begin(115200);
 #if (BOARD_REVISION == 'A')
@@ -49,12 +56,13 @@ void setup()
 
   // No need to initialize CAB here, as can.begin seems to hog the data
   // buffer which in turn stalls the MAX7219 and therefore the whole program
-  
+
   // Initialize leds, pass U8G2 object pointer
   leds__init(&leds_md);
   // Initialize lcd, pass U8G2 object pointer
   lcd__init(&lcd_u8g2);
-  
+
+
   //Non functional as clearBuffer in loop overwrites for now
   lcd__print_default_screen_template();
   leds__set_brightness(MAX_LED_BRIGHTNESS);
@@ -63,9 +71,9 @@ void setup()
   can__start();
 #endif
   /*
-  //LED Sniffing code
-  delay(5000);
-  for (uint8_t i = 0; i < 8; i++) {
+    //LED Sniffing code
+    delay(5000);
+    for (uint8_t i = 0; i < 8; i++) {
     for (uint8_t j = 0; j < 8; j++) {
       Serial.println(i);
       Serial.println(j);
@@ -74,7 +82,7 @@ void setup()
       delay(1000);
       leds_md.setPoint(i,j,false);
     }
-  }
+    }
   */
 }
 
@@ -94,11 +102,20 @@ void loop()
   can__receive();
   rpm = can__get_rpm();
   gear = can__get_gear();
+
+  // temporary values. change later ---
+  rpm = 10005;
+  hv = 0;
+  soc = 0;
+  lv = 145;
+  etemp = 150;
+  oiltemp = 150;
+  drs = 1;
 #if (BOARD_REVISION == 'A')
   can__stop();
 #endif
   leds__rpm_update_flash(rpm, gear, curr_millis);
   //lcd__print_rpm(rpm, curr_millis);
-  lcd__update_screen(rpm, gear, curr_millis);
+  lcd__update_screen(rpm, gear, lv, etemp, oiltemp, drs, curr_millis);
   //delay(500);
 }
