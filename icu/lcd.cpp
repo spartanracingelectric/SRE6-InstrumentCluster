@@ -223,10 +223,10 @@ void lcd__print_drs(uint8_t drs) // DRS Open or Closed: 0 or 1
 
 // Electric car ---------------------------------------------------------------
 void lcd__print_hv(uint16_t hv) { // accumulator voltage (comes in float or integer?)
-  //RPM up to 5 digits
-  uint8_t HV_MAX_DIGITS = 5;
-  char hv_str_temp[6] = "     ";
-  char hv_str[6] = "     ";
+  //RPM up to 3 digits
+  uint8_t HV_MAX_DIGITS = 3;
+  char hv_str_temp[4] = "   ";
+  char hv_str[4] = "   ";
   uint8_t hv_num_digits = 1;
 
   //Round to hundreds
@@ -236,7 +236,7 @@ void lcd__print_hv(uint16_t hv) { // accumulator voltage (comes in float or inte
     hv_num_digits = (int)log10(hv) + 1;
 
   //clear remaining 1s before reupdating
-  if (hv_num_digits == 4) {
+  if (hv_num_digits == 2) {
     hv_str[0] = ' ';
   }
 
@@ -247,8 +247,9 @@ void lcd__print_hv(uint16_t hv) { // accumulator voltage (comes in float or inte
   for (uint8_t i = 0; i < hv_num_digits; i++) {
     hv_str[HV_MAX_DIGITS - i - 1] = hv_str_temp[i];
   }
-
-  lcd__print18(40, 10, hv_str);
+  
+  lcd__print8(102, 18, "volts");
+  lcd__print18(46, 18, hv_str);
 }
 
 void lcd__print_soc(uint8_t soc) { // State of charge 0-100%
@@ -257,9 +258,6 @@ void lcd__print_soc(uint8_t soc) { // State of charge 0-100%
   char soc_str_temp[4] = "   ";
   char soc_str[4] = "   ";
   uint8_t soc_num_digits = 1;
-
-  //Round to hundreds
-  soc = (soc / 100) * 100;
 
   if (soc != 0)
     soc_num_digits = (int)log10(soc) + 1;
@@ -277,7 +275,8 @@ void lcd__print_soc(uint8_t soc) { // State of charge 0-100%
     soc_str[SOC_MAX_DIGITS - i - 1] = soc_str_temp[i];
   }
 
-  lcd__print18(80, 64, soc_str);
+  lcd__print8(54, 37, "SOC");
+  lcd__print18(46, 64, soc_str);
 }
 
 void lcd__update_screen(uint16_t rpm, uint8_t gear, uint8_t lv, uint8_t etemp, uint8_t oiltemp, uint8_t drs, uint32_t curr_millis_lcd)
@@ -287,6 +286,21 @@ void lcd__update_screen(uint16_t rpm, uint8_t gear, uint8_t lv, uint8_t etemp, u
     lcd__clear_screen();
     lcd__print_rpm(rpm);
     lcd__print_gear(gear);
+    lcd__print_lv(lv);
+    lcd__print_etemp(etemp);
+    lcd__print_oiltemp(oiltemp);
+    lcd__print_drs(drs);
+
+  }
+}
+
+void lcd__update_screenE(uint16_t hv, uint8_t soc, uint8_t lv, uint8_t etemp, uint8_t oiltemp, uint8_t drs, uint32_t curr_millis_lcd)
+{
+  if (curr_millis_lcd - prev_millis_lcd >= LCD_UPDATE_MS) {
+    prev_millis_lcd = curr_millis_lcd;
+    lcd__clear_screen();
+    lcd__print_hv(hv);
+    lcd__print_soc(soc);
     lcd__print_lv(lv);
     lcd__print_etemp(etemp);
     lcd__print_oiltemp(oiltemp);
