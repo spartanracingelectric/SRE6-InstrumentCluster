@@ -13,6 +13,12 @@ ACAN2515Settings settings (QUARTZ_FREQUENCY, 500UL * 1000UL) ; // CAN bit rate 5
 
 uint16_t curr_rpm = 0;
 uint8_t curr_gear = 0;
+uint16_t curr_hv = 0;
+uint8_t curr_soc = 0;
+uint8_t curr_lv = 0;
+uint8_t curr_etemp = 0;
+uint8_t curr_oiltemp = 0;
+uint8_t curr_drs = 0;
 
 static void can__rpm_receive (const CANMessage & inMessage)
 {
