@@ -35,7 +35,7 @@ static void can__hv_receive (const CANMessage & inMessage)
 {
   // Little endian
   // As per Stafl CAN protocol divide by 1000 to get units in Volts (or multiply by 0.001)
-  curr_lv = ((inMessage.data[0]) | (inMessage.data[1] << 8) | (inMessage.data[2] << 16) | (inMessage.data[3] << 24)) * .001f;
+  curr_hv = ((inMessage.data[4]) | (inMessage.data[5] << 8) | (inMessage.data[6] << 16) | (inMessage.data[7] << 24)) * .001f;
   //Serial.println ("Received RPM " + curr_rpm) ;
 }
 
@@ -78,8 +78,8 @@ uint8_t can__get_gear()
 #else
 const ACAN2515AcceptanceFilter filters [] =
 {
-  {standard2515Filter (CAN_HV_ADDR, 0, 0), can__hv_receive}, // RXF0
-  {standard2515Filter (CAN_LV_ADDR, 0, 0), can__lv_receive} // RXF1
+  {standard2515Filter (CAN_LV_ADDR, 0, 0), can__lv_receive}, // RXF0
+  {standard2515Filter (CAN_HV_ADDR, 0, 0), can__hv_receive} // RXF1
   //{standard2515Filter (0x7FE, 0, 0), can__dummy_receive}, // RXF2
 } ;
 
