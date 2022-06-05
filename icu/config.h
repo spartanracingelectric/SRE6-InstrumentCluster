@@ -12,8 +12,8 @@
 //#define BOARD_REVISION 'A'
 #define BOARD_REVISION 'B'
 //#define BOARD_REVISION 'B' //Potentially unused
-#define POWERTRAIN_TYPE 'C'
-//#define POWERTRAIN_TYPE 'E'
+//#define POWERTRAIN_TYPE 'C'
+#define POWERTRAIN_TYPE 'E'
 
 // Set to 1 if you want to print the input data over serial
 #define SERIAL_DEBUG_EN 0
@@ -91,10 +91,13 @@
 #if (POWERTRAIN_TYPE == 'C')
 //#define CANBUS_SPEED 1000UL * 1000UL //1 Mbit/s
 #define CANBUS_SPEED 500UL * 1000UL //500 kbit/s
-#define CAN_RPM_ADDR 0x640
-#define CAN_GEAR_ADDR 0x703
+#define CAN_RPM_ADDR    0x640
+#define CAN_GEAR_ADDR   0x703
 #else //POWERTRAIN_TYPE == 'E'
 #define CANBUS_SPEED 500UL * 1000UL //500 kbit/s
+#define CAN_HV_ADDR         0x320
+//#define CAN_HV_TEMP_ADDR    0x
+#define CAN_LV_ADDR         0x507
 #endif
 
 //  LOW VOLTAGE

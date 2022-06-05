@@ -9,9 +9,14 @@
 void can__start();
 void can__send_test();
 void can__receive();
-uint16_t can__get_rpm();
-uint8_t can__get_gear();
 void can__stop();
 
+#if (POWERTRAIN_TYPE == 'C')
+uint16_t can__get_rpm();
+uint8_t can__get_gear();
+#else //POWERTRAIN_TYPE == 'E'
+float can__get_hv();
+float can__get_lv();
+#endif
 
 #endif /* CAN_H_ */

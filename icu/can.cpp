@@ -1,6 +1,8 @@
 #include "can.h"
 #include "config.h"
 
+static const uint32_t QUARTZ_FREQUENCY = 16UL * 1000UL * 1000UL; // 16 MHz
+
 //Skip INT pin for Rev A, set to 0
 #if (BOARD_REVISION == 'A')
 ACAN2515 can (PICO_CAN_SPI_CS, SPI, 15);
@@ -8,9 +10,9 @@ ACAN2515 can (PICO_CAN_SPI_CS, SPI, 15);
 ACAN2515 can (PICO_CAN_SPI_CS, SPI1, PICO_CAN_INT);
 #endif
 
-static const uint32_t QUARTZ_FREQUENCY = 16UL * 1000UL * 1000UL; // 16 MHz
 ACAN2515Settings settings (QUARTZ_FREQUENCY, 500UL * 1000UL) ; // CAN bit rate 500s kb/s
 
+#if (POWERTRAIN_TYPE == 'C')
 uint16_t curr_rpm = 0;
 uint8_t curr_gear = 0;
 
@@ -25,6 +27,26 @@ static void can__gear_receive (const CANMessage & inMessage)
   curr_gear = inMessage.data[1];
   //Serial.println ("Received Gear " + curr_gear) ;
 }
+#else
+float curr_hv = 0;
+float curr_lv = 0;
+
+static void can__hv_receive (const CANMessage & inMessage)
+{
+  // Little endian
+  // As per Stafl CAN protocol divide by 1000 to get units in Volts (or multiply by 0.001)
+  curr_lv = ((inMessage.data[0]) | (inMessage.data[1] << 8) | (inMessage.data[2] << 16) | (inMessage.data[3] << 24)) * .001f;
+  //Serial.println ("Received RPM " + curr_rpm) ;
+}
+
+static void can__lv_receive (const CANMessage & inMessage)
+{
+  // Little endian
+  // As per VCU configuration, divide by 1000 to get units in Volts (or multiply by 0.001)
+  curr_lv = ((inMessage.data[0]) | (inMessage.data[1] << 8)) * 0.001f;
+  //Serial.println ("Received Gear " + curr_gear) ;
+}
+#endif
 
 static void can__dummy_receive (const CANMessage & inMessage)
 {
@@ -35,6 +57,8 @@ static void can__dummy_receive (const CANMessage & inMessage)
 
 const ACAN2515Mask rxm0 = standard2515Mask (0x7FF, 0, 0) ;
 //const ACAN2515Mask rxm1 = standard2515Mask (0x7FF, 0, 0) ;
+
+#if (POWERTRAIN_TYPE == 'C')
 const ACAN2515AcceptanceFilter filters [] =
 {
   {standard2515Filter (CAN_RPM_ADDR, 0, 0), can__rpm_receive}, // RXF0
@@ -51,6 +75,25 @@ uint8_t can__get_gear()
 {
   return curr_gear;
 }
+#else
+const ACAN2515AcceptanceFilter filters [] =
+{
+  {standard2515Filter (CAN_HV_ADDR, 0, 0), can__hv_receive}, // RXF0
+  {standard2515Filter (CAN_LV_ADDR, 0, 0), can__lv_receive} // RXF1
+  //{standard2515Filter (0x7FE, 0, 0), can__dummy_receive}, // RXF2
+} ;
+
+float can__get_hv()
+{
+  return curr_hv;
+}
+
+float can__get_lv()
+{
+  return curr_lv;
+}
+#endif
+
 
 void can__start()
 {
