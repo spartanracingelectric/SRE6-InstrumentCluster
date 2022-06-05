@@ -95,9 +95,9 @@
 #define CAN_GEAR_ADDR   0x703
 #else //POWERTRAIN_TYPE == 'E'
 #define CANBUS_SPEED 500UL * 1000UL //500 kbit/s
-#define CAN_HV_ADDR         0x320
 //#define CAN_HV_TEMP_ADDR    0x
 #define CAN_LV_ADDR         0x507
+#define CAN_HV_ADDR         0x620
 #endif
 
 //  LOW VOLTAGE
