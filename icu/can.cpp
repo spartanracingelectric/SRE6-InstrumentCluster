@@ -13,11 +13,15 @@ ACAN2515Settings settings (QUARTZ_FREQUENCY, 500UL * 1000UL) ; // CAN bit rate 5
 
 uint16_t curr_rpm = 0;
 uint8_t curr_gear = 0;
+uint8_t curr_oiltemp = 0;
+uint8_t curr_engtemp = 0;
+
 uint16_t curr_hv = 0;
 uint8_t curr_soc = 0;
+uint8_t curr_wattemp = 0;
+uint8_t curr_acctemp = 0;
+
 uint8_t curr_lv = 0;
-uint8_t curr_etemp = 0;
-uint8_t curr_oiltemp = 0;
 uint8_t curr_drs = 0;
 
 static void can__rpm_receive (const CANMessage & inMessage)
@@ -32,12 +36,47 @@ static void can__gear_receive (const CANMessage & inMessage)
   //Serial.println ("Received Gear " + curr_gear) ;
 }
 
-static void can__dummy_receive (const CANMessage & inMessage)
+static void can__oiltemp_receive (const CANMessage & inMessage)
 {
-  uint8_t durr;
-  //curr_gear = inMessage.data[1];
-  //Serial.println ("Received Gear " + curr_gear) ;
+  curr_oiltemp = inMessage.data[1];
 }
+
+static void can__hv_receive (const CANMessage & inMessage)
+{
+  curr_hv = inMessage.data[1];
+}
+
+static void can__soc_receive (const CANMessage & inMessage)
+{
+  curr_soc = inMessage.data[1];
+}
+
+static void can__wattemp_receive (const CANMessage & inMessage)
+{
+  curr_wattemp = inMessage.data[1];
+}
+
+static void can__acctemp_receive (const CANMessage & inMessage)
+{
+  curr_acctemp = inMessage.data[1];
+}
+
+static void can__lv_receive (const CANMessage & inMessage)
+{
+  curr_lv = inMessage.data[1];
+}
+
+static void can__drs_receive (const CANMessage & inMessage)
+{
+  curr_drs = inMessage.data[1];
+}
+
+//static void can__dummy_receive (const CANMessage & inMessage)
+//{
+//  uint8_t durr;
+//  //curr_gear = inMessage.data[1];
+//  //Serial.println ("Received Gear " + curr_gear) ;
+//}
 
 const ACAN2515Mask rxm0 = standard2515Mask (0x7FF, 0, 0) ;
 //const ACAN2515Mask rxm1 = standard2515Mask (0x7FF, 0, 0) ;
@@ -45,17 +84,62 @@ const ACAN2515AcceptanceFilter filters [] =
 {
   {standard2515Filter (CAN_RPM_ADDR, 0, 0), can__rpm_receive}, // RXF0
   {standard2515Filter (CAN_GEAR_ADDR, 0, 0), can__gear_receive} // RXF1
+  {standard2515Filter (CAN_GEAR_ADDR, 0, 0), can__oiltemp_receive} // not defined
+  {standard2515Filter (CAN_HV_ADDR, 0, 0), can__hv_receive}
+  {standard2515Filter (CAN_SOC_ADDR, 0, 0), can__soc_receive}
+  {standard2515Filter (CAN_GEAR_ADDR, 0, 0), can__wattemp_receive} // not defined
+  {standard2515Filter (CAN_BAT_TEMP_ADDR, 0, 0), can__acctemp_receive}
+  {standard2515Filter (CAN_LV_ADDR, 0, 0), can__lv_receive}
+  {standard2515Filter (CAN_GEAR_ADDR, 0, 0), can__drs_receive} // not defined
   //{standard2515Filter (0x7FE, 0, 0), can__dummy_receive}, // RXF2
 } ;
 
-uint16_t can__get_rpm()
+// C car
+uint16_t can__get_rpm(void)
 {
   return curr_rpm;
 }
 
-uint8_t can__get_gear()
+uint8_t can__get_gear(void)
 {
   return curr_gear;
+}
+
+uint8_t can__get_oiltempvoid()
+{
+  return curr_oiltemp;
+}
+uint8_t can__get_engtemp(void) // C car engine
+{
+  return curr_engtemp;
+}
+
+// E car
+uint16_t can__get_hv(void)
+{
+  return curr_hv;
+}
+uint8_t can__get_soc(void)
+{
+  return curr_soc;
+}
+uint8_t can__get_wattemp(void)
+{
+  return curr_wattemp;
+}
+uint8_t can__get_acctemp(void) // E car accumulator
+{
+  return acctemp;
+}
+
+// E & C car
+uint8_t can__get_lv(void)
+{
+  return curr_lv;
+}
+uint8_t can__get_drs(void)
+{
+  return curr_drs;
 }
 
 void can__start()
