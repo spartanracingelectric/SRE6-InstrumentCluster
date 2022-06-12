@@ -9,14 +9,21 @@
 // Board Revision, select:
 // 'A' for Rev A
 // 'B' for Rev B
-//#define BOARD_REVISION 'A'
-#define BOARD_REVISION 'B'
+#define BOARD_REVISION 'A'
+//#define BOARD_REVISION 'B'
 //#define BOARD_REVISION 'B' //Potentially unused
+
 #define POWERTRAIN_TYPE 'C'
 //#define POWERTRAIN_TYPE 'E'
 
 // Set to 1 if you want to print the input data over serial
 #define SERIAL_DEBUG_EN 0
+
+// Display Screen Status
+// 0 for Driver
+// 1 for Menu
+// 2 for Individual Menu Screens
+#define DISPLAY_SCREEN 0
 
 /*---------------------------------------------------------------------------/
 / DRIVER PARAMETERS
@@ -82,18 +89,48 @@
 #define PICO_CAN_RST        15
 #endif
 
+// Buttons - change if needed
+#define HOLD_TIME 1000          //Button hold time for bottom buttons on default screen. In ms
+#define BUT1 PINC0            //Top left
+#define BUT2 PINC1            //Top right
+#define BUT3 PINC2            //Bottom left
+#define BUT4 PINC3            //Bottom right
+#define PCINT_BUT1 (1<<PCINT8)
+#define PCINT_BUT2 (1<<PCINT9)
+#define PCINT_BUT3 (1<<PCINT10)
+#define PCINT_BUT4 (1<<PCINT11)
+
 /*---------------------------------------------------------------------------/
 / CUSTOM CONFIGURATION VARIABLES
 /---------------------------------------------------------------------------*/
 
 //  CAN BUS
 /////////////////////
-#if (POWERTRAIN_TYPE == 'C')
+#if (POWERTRAIN_TYPE == 'C') 
 //#define CANBUS_SPEED 1000UL * 1000UL //1 Mbit/s
 #define CANBUS_SPEED 500UL * 1000UL //500 kbit/s
 #define CAN_RPM_ADDR 0x640
 #define CAN_GEAR_ADDR 0x703
 #else //POWERTRAIN_TYPE == 'E'
+#define CANBUS_SPEED 500UL * 1000UL //500 kbit/s
+#endif
+
+#if (POWERTRAIN_TYPE == 'E')
+//#define CANBUS_SPEED 1000UL * 1000UL //1 Mbit/s
+#define CANBUS_SPEED 500UL * 1000UL //500 kbit/s
+#define CAN_RPM_ADDR 0x640
+#define CAN_GEAR_ADDR 0x703
+#define CANBUS_SPEED 500UL * 1000UL //500 kbit/s
+#endif
+
+if (POWERTRAIN_TYPE == 'E')
+#define CANBUS_SPEED 500UL * 1000UL //500 kbit/s
+#define CAN_SOC_ADDR 0x627
+#define CAN_BAT_TEMP_ADDR 0x628
+#define CAN_RPM_ADDR 0x0A5 // Does ev need rpm?
+#define CAN_REGEN_ADDR 0x508
+#define CAN_HV_ADDR 0x623
+#define CAN_LV_ADDR 0x700
 #define CANBUS_SPEED 500UL * 1000UL //500 kbit/s
 #endif
 
