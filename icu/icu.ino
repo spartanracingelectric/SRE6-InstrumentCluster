@@ -15,6 +15,7 @@ U8G2_ST7565_NHD_C12864_F_4W_SW_SPI lcd_u8g2(U8G2_R2, PICO_LCD_SPI_SCK, PICO_LCD_
 // LED Object Initialization
 // Args: (MAX72XX_HARDWARE_TYPE, CS, NUM_MAX72XX_DEVICES)
 // PAROLA_HW refers to an 8x8 LED matrix which we are sort of simulating
+
 MD_MAX72XX leds_md = MD_MAX72XX(MAX72XX_HARDWARE_TYPE, PICO_LED_SPI_CS, 1);
 
 uint16_t rpm;
@@ -24,6 +25,7 @@ uint8_t soc;
 uint8_t lv;
 uint8_t etemp;
 uint8_t oiltemp;
+uint8_t watertemp;
 uint8_t drs;
 
 void setup()
@@ -59,6 +61,7 @@ void setup()
 
   // Initialize leds, pass U8G2 object pointer
   leds__init(&leds_md);
+
   // Initialize lcd, pass U8G2 object pointer
   lcd__init(&lcd_u8g2);
 
@@ -100,30 +103,47 @@ void loop()
 #endif
   //can__send_test();
   can__receive();
+
+#if(POWERTRAIN_TYPE == 'C')
   rpm = can__get_rpm();
   gear = can__get_gear();
+  oiltemp = can__get_oiltemp();
+  etemp = can__get_engtemp();    
+#endif
 
+#if (POWERTRAIN_TYPE == 'E')
+  hv = can__get_hv();
+  soc = can__get_soc();
+  wattemp = can__get_wattemp();
+  etemp = can__get_acctemp();
+#endif
+
+  lv = can__get_lv();
+  drs = can__get_drs();
+  
   // temporary values. change later ---
-  rpm = 10005;
-  hv = 0;
-  soc = 0;
+  rpm = 10000;
+  gear = 6;
+  hv = 250;
+  soc = 88;
   lv = 145;
   etemp = 150;
   oiltemp = 150;
+  watertemp = 70;
   drs = 1;
 #if (BOARD_REVISION == 'A')
   can__stop();
 #endif
   leds__rpm_update_flash(rpm, gear, curr_millis);
   //lcd__print_rpm(rpm, curr_millis);
-   if(POWERTRAIN_TYPE == 'C')
+  if(POWERTRAIN_TYPE == 'C')
   {
-//    lcd__update_screen(rpm, gear, lv, etemp, oiltemp, drs, curr_millis);
-    lcd__update_screenE(hv, soc, lv, etemp, oiltemp, drs, curr_millis);
+    lcd__update_screen(rpm, gear, lv, etemp, oiltemp, drs, curr_millis);
+//    lcd__update_screenE(hv, soc, lv, etemp, watertemp, drs, curr_millis);
 
   }else if(POWERTRAIN_TYPE == 'E')
   {
-    lcd__update_screenE(hv, soc, lv, etemp, oiltemp, drs, curr_millis);
+    lcd__update_screenE(hv, soc, lv, etemp, watertemp, drs, curr_millis);
   }
   //delay(500);
 }
