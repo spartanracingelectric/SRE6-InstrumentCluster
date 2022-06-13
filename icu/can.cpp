@@ -41,6 +41,12 @@ static void can__oiltemp_receive (const CANMessage & inMessage)
   curr_oiltemp = inMessage.data[1];
 }
 
+static void can__engine_receive (const CANMessage & inMessage)
+{
+  curr_engtemp = inMessage.data[1];
+  //Serial.println ("Received Gear " + curr_gear) ;
+}
+
 static void can__hv_receive (const CANMessage & inMessage)
 {
   curr_hv = inMessage.data[1];
@@ -80,64 +86,71 @@ static void can__drs_receive (const CANMessage & inMessage)
 
 const ACAN2515Mask rxm0 = standard2515Mask (0x7FF, 0, 0) ;
 //const ACAN2515Mask rxm1 = standard2515Mask (0x7FF, 0, 0) ;
+
+// POWERTRAIN_TYPE == 'C'
 const ACAN2515AcceptanceFilter filters [] =
 {
   {standard2515Filter (CAN_RPM_ADDR, 0, 0), can__rpm_receive}, // RXF0
   {standard2515Filter (CAN_GEAR_ADDR, 0, 0), can__gear_receive} // RXF1
-  {standard2515Filter (CAN_GEAR_ADDR, 0, 0), can__oiltemp_receive} // not defined
-  {standard2515Filter (CAN_HV_ADDR, 0, 0), can__hv_receive}
-  {standard2515Filter (CAN_SOC_ADDR, 0, 0), can__soc_receive}
-  {standard2515Filter (CAN_GEAR_ADDR, 0, 0), can__wattemp_receive} // not defined
-  {standard2515Filter (CAN_BAT_TEMP_ADDR, 0, 0), can__acctemp_receive}
-  {standard2515Filter (CAN_LV_ADDR, 0, 0), can__lv_receive}
-  {standard2515Filter (CAN_GEAR_ADDR, 0, 0), can__drs_receive} // not defined
   //{standard2515Filter (0x7FE, 0, 0), can__dummy_receive}, // RXF2
 } ;
+// POWERTRAIN_TYPE == 'E'
+//const ACAN2515AcceptanceFilter filters [] =
+//{
+//  {standard2515Filter (CAN_GEAR_ADDR, 0, 0), can__oiltemp_receive}, // not defined
+//  {standard2515Filter (CAN_HV_ADDR, 0, 0), can__hv_receive},
+//  {standard2515Filter (CAN_SOC_ADDR, 0, 0), can__soc_receive},
+//  {standard2515Filter (CAN_GEAR_ADDR, 0, 0), can__wattemp_receive}, // not defined
+//  {standard2515Filter (CAN_BAT_TEMP_ADDR, 0, 0), can__acctemp_receive},
+//  {standard2515Filter (CAN_LV_ADDR, 0, 0), can__lv_receive},
+//  {standard2515Filter (CAN_GEAR_ADDR, 0, 0), can__drs_receive} // not defined
+//} ;
+
 
 // C car
-uint16_t can__get_rpm(void)
+uint16_t can__get_rpm()
 {
   return curr_rpm;
 }
 
-uint8_t can__get_gear(void)
+uint8_t can__get_gear()
 {
   return curr_gear;
 }
 
-uint8_t can__get_oiltempvoid()
+uint8_t can__get_oiltemp()
 {
   return curr_oiltemp;
 }
-uint8_t can__get_engtemp(void) // C car engine
+uint8_t can__get_engtemp() // C car engine
 {
   return curr_engtemp;
 }
 
 // E car
-uint16_t can__get_hv(void)
+uint16_t can__get_hv()
 {
   return curr_hv;
 }
-uint8_t can__get_soc(void)
+uint8_t can__get_soc()
 {
   return curr_soc;
 }
-uint8_t can__get_wattemp(void)
+uint8_t can__get_wattemp()
 {
   return curr_wattemp;
 }
-uint8_t can__get_acctemp(void) // E car accumulator
+uint8_t can__get_acctemp() // E car accumulator
 {
-  return acctemp;
+  return curr_acctemp;
 }
 
 // E & C car
-uint8_t can__get_lv(void)
+uint8_t can__get_lv()
 {
   return curr_lv;
 }
-uint8_t can__get_drs(void)
+uint8_t can__get_drs()
 {
   return curr_drs;
 }
