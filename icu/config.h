@@ -111,19 +111,10 @@
 #define CANBUS_SPEED 500UL * 1000UL //500 kbit/s
 #define CAN_RPM_ADDR 0x640
 #define CAN_GEAR_ADDR 0x703
-#else //POWERTRAIN_TYPE == 'E'
-#define CANBUS_SPEED 500UL * 1000UL //500 kbit/s
 #endif
+
 
 #if (POWERTRAIN_TYPE == 'E')
-//#define CANBUS_SPEED 1000UL * 1000UL //1 Mbit/s
-#define CANBUS_SPEED 500UL * 1000UL //500 kbit/s
-#define CAN_RPM_ADDR 0x640
-#define CAN_GEAR_ADDR 0x703
-#define CANBUS_SPEED 500UL * 1000UL //500 kbit/s
-#endif
-
-if (POWERTRAIN_TYPE == 'E')
 #define CANBUS_SPEED 500UL * 1000UL //500 kbit/s
 #define CAN_SOC_ADDR 0x627
 #define CAN_BAT_TEMP_ADDR 0x628
@@ -166,6 +157,7 @@ if (POWERTRAIN_TYPE == 'E')
 #define REGEN1_ADDR 0x702       // (-> VCU)
 #define REGEN2_ADDR 0x703       // (-> VCU)
 #define REGEN3_ADDR 0x704
+#define FAULT_ADDR 0x0AB
 
 #define MAX72XX_HARDWARE_TYPE MD_MAX72XX::PAROLA_HW
 
