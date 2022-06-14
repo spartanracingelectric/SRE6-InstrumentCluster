@@ -1,110 +1,114 @@
-#include "buttons.h"
-
-#define DEFAULT_SCREEN 1
-#define MENU_SCREEN 2
-#define SETTINGS_SCREEN 3
-#define OPTIONX_SCREEN 4
-#define OPTIONY_SCREEN 5
-
-#define DEBOUNCE_TIME 20
-#define LOCK_TIME 100
-
-//void buttons_init() {
-//  PCMSK1 |= PCINT_BUT1 | PCINT_BUT2 | PCINT_BUT3 | PCINT_BUT4; //Enable pin change interrupts on pc0 -> pc3 pins ( Pin Change Mask Register 1 )
-//  PCICR |= (1<<PCIE1);  //When the PCIE1 bit is set (one) and the I-bit in the status register (SREG) is set (one), pin change interrupt 1 is enabled ( Pin Change Interrupt Control Register )
-//}
+//#include "buttons.h"
 //
-//ISR(PCINT1_vect) {
-//  
-//  int button_flag[4];
-//  
-//  uint16_t timer;
+//const byte button_pins[] = {BUT1, BUT2, BUT3, BUT4};
+//int button_flag[4];
 //
-//  void button_flag_reset() {
-//    for (int i = 0; i < 4; i++)
+//uint32_t last_debounce_time = 0;
+//
+//// Initialize the buttons, run in the setup function
+//void buttons__init() {
+//  for (int i = 0; i < 4; i++) {
+//    pinMode(button_pins[i], INPUT);
 //    button_flag[i] = 0;
 //  }
-//  
-//  timer = 0;
-//  while (!(PINC & (1<<BUT1))) {
-//    timer++;
-//    _delay_ms(1);
+//  Serial.println("Button init done");
+//}
+//
+//// Poll the buttons and update the respective button flags
+//void buttons__poll() {
+//  int but1_state = digitalRead(BUT1);
+//  int but2_state = digitalRead(BUT2);
+//  int but3_state = digitalRead(BUT3);
+//  int but4_state = digitalRead(BUT4);
+//
+//  if (millis() - last_debounce_time > DEBOUNCE_TIME) {
+//    if (but1_state == LOW)
+//      button_flag[0] = 1;
+//    if (but2_state == LOW)
+//      button_flag[1] = 1;
+//    if (but3_state == LOW)
+//      button_flag[2] = 1;
+//    if (but4_state == LOW)
+//      button_flag[3] = 1;
+//  } else {
+//    last_debounce_time = millis();
 //  }
-//  if (timer > DEBOUNCE_TIME)
-//  button_flag[0] = 1;
-//  
-//  timer = 0;
-//  while (!(PINC & (1<<BUT2))) {
-//    timer++;
-//    _delay_ms(1);
+//
+//  //Serial.println();
+//}
+//
+//// Reset the button flags
+//// Usually only need to call after using the update lcd function
+//void buttons__flag_reset() {
+//  for (int i = 0; i < 4; i++) {
+//    button_flag[i] = 0;
 //  }
-//  if (timer > DEBOUNCE_TIME)
-//  button_flag[1] = 1;
-//  
-//  timer = 0;
-//  while (!(PINC & (1<<BUT3))) {
-//    timer++;
-//    _delay_ms(1);
-//  }
-//  if (timer > DEBOUNCE_TIME) {
-//    if (DISPLAY_SCREEN != 1)
-//    button_flag[2] = 1;
-//    else if (timer >= HOLD_TIME)
-//    button_flag[2] = 1;
-//  }
-//  
-//  timer = 0;
-//  while (!(PINC & (1<<BUT4))) {
-//    timer++;
-//    _delay_ms(1);
-//  }
-//  if (timer > DEBOUNCE_TIME) {
-//    if (LCD_get_state() != 1)
-//    button_flag[3] = 1;
-//    else if (timer >= HOLD_TIME)
-//    button_flag[3] = 1;
-//  }
-//  
-//  switch(LCD_get_state()) {
-//    case DEFAULT_SCREEN: { //LCD_get_state() = 1
-//      if (button_flag[0])
-//      LCD_timestamp();
-//      else if (button_flag[1])
-//      LCD_timestamp();
-//      else if (button_flag[2])
-//      LCD_menu();
-//      else if (button_flag[3])
-//      LCD_menu();
-//      button_flag_reset();
+//}
+//
+//// Update the lcd to the correct menu
+//void buttons__update_LCD() {
+//  switch(DISPLAY_SCREEN) {
+//    case DEFAULT_SCREEN: //DISPLAY_SCREEN = 0
+//      if (button_flag[0]) {
+////        indicator__timestamp();
+////        CAN__transmit_timestamp();
+//      }
+//      else if (button_flag[1]) {
+////        indicator__timestamp();
+////        CAN__transmit_timestamp();
+//      }
+//      else if (button_flag[2] && button_flag[3]) {
+//        lcd__menu();
+//      }
+//      //else if (button_flag[3])
+//        //lcd__menu();
+//      buttons__flag_reset();
 //      
-//    }
-//    case MENU_SCREEN: { //LCD_get_state() = 2
+//      break;
+//      
+//    case MENU_SCREEN: //DISPLAY_SCREEN = 1
 //      if (button_flag[0])
-//      LCD_settings();
+//        lcd__settings();
 //      else if (button_flag[1])
-//      LCD_optionx();
+//        lcd__optionx();
 //      else if (button_flag[2])
-//      LCD_back();
+//        lcd__back();
 //      else if (button_flag[3])
-//      LCD_optiony();
-//      button_flag_reset();
-//    }
-//    case SETTINGS_SCREEN: { //LCD_get_state() = 3
+//        lcd__optiony(launch_flag);
+//      buttons__flag_reset();
+//      break;
+//    
+//    case SETTINGS_SCREEN: //DISPLAY_SCREEN = 2
 //      if (button_flag[2])
-//      LCD_back();
-//      button_flag_reset();
-//    }
-//    case OPTIONX_SCREEN: { //LCD_get_state() = 4
+//        lcd__back();
+//      buttons__flag_reset();
+//      break;
+//    
+//    case OPTIONX_SCREEN: //DISPLAY_SCREEN = 3, T Map
+//      if (button_flag[0]) {
+//        CAN__transmit_torquemap(1);
+//        indicator__blink_bottom();
+//      }
+//      if (button_flag[1]) {
+//        CAN__transmit_torquemap(2);
+//        indicator__blink_bottom();
+//      }
 //      if (button_flag[2])
-//      LCD_back();
-//      button_flag_reset();
-//    }
-//    case OPTIONY_SCREEN: { //LCD_get_state() = 5
+//        lcd__back();
+//      if (button_flag[3])
+//        CAN__transmit_torquemap(3);
+//      buttons__flag_reset();
+//      break;
+//    
+//    case OPTIONY_SCREEN: //DISPLAY_SCREEN = 4
+//      if (button_flag[0]) {
+//        CAN__toggle_launch();
+//        indicator__blink_bottom();
+//        lcd__optiony(launch_flag);
+//      }
 //      if (button_flag[2])
-//      LCD_back();
-//      button_flag_reset();
-//    }
+//        lcd__back();
+//      buttons__flag_reset();
+//      break;
 //  }
-//  
-//  _delay_ms(LOCK_TIME);
 //}
