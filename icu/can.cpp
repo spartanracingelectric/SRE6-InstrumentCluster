@@ -88,6 +88,7 @@ const ACAN2515Mask rxm0 = standard2515Mask (0x7FF, 0, 0) ;
 //const ACAN2515Mask rxm1 = standard2515Mask (0x7FF, 0, 0) ;
 
 // POWERTRAIN_TYPE == 'C'
+#if (POWERTRAIN_TYPE == 'C')
 const ACAN2515AcceptanceFilter filters [] =
 {
   {standard2515Filter (CAN_RPM_ADDR, 0, 0), can__rpm_receive}, // RXF0
@@ -95,16 +96,18 @@ const ACAN2515AcceptanceFilter filters [] =
   //{standard2515Filter (0x7FE, 0, 0), can__dummy_receive}, // RXF2
 } ;
 // POWERTRAIN_TYPE == 'E'
-//const ACAN2515AcceptanceFilter filters [] =
-//{
-//  {standard2515Filter (CAN_GEAR_ADDR, 0, 0), can__oiltemp_receive}, // not defined
-//  {standard2515Filter (CAN_HV_ADDR, 0, 0), can__hv_receive},
-//  {standard2515Filter (CAN_SOC_ADDR, 0, 0), can__soc_receive},
+#elif (POWERTRAIN_TYPE == 'E')
+const ACAN2515AcceptanceFilter filters [] =
+{
+  {standard2515Filter (CAN_HV_ADDR, 0, 0), can__hv_receive},
+  {standard2515Filter (CAN_SOC_ADDR, 0, 0), can__soc_receive},
 //  {standard2515Filter (CAN_GEAR_ADDR, 0, 0), can__wattemp_receive}, // not defined
-//  {standard2515Filter (CAN_BAT_TEMP_ADDR, 0, 0), can__acctemp_receive},
-//  {standard2515Filter (CAN_LV_ADDR, 0, 0), can__lv_receive},
-//  {standard2515Filter (CAN_GEAR_ADDR, 0, 0), can__drs_receive} // not defined
-//} ;
+//  {standard2515Filter (CAN_GEAR_ADDR, 0, 0), can__drs_receive}, // not defined
+//  {standard2515Filter (CAN_GEAR_ADDR, 0, 0), can__oiltemp_receive}, // not defined
+  {standard2515Filter (CAN_BAT_TEMP_ADDR, 0, 0), can__acctemp_receive},
+  {standard2515Filter (CAN_LV_ADDR, 0, 0), can__lv_receive}
+} ;
+#endif
 
 
 // C car
