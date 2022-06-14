@@ -11,7 +11,6 @@
 // 'B' for Rev B
 #define BOARD_REVISION 'A'
 //#define BOARD_REVISION 'B'
-//#define BOARD_REVISION 'B' //Potentially unused
 
 #define POWERTRAIN_TYPE 'C'
 //#define POWERTRAIN_TYPE 'E'
@@ -23,18 +22,20 @@
 // 0 for Driver
 // 1 for Menu
 // 2 for Individual Menu Screens
+// 3 for RPM Threshold
 #define DISPLAY_SCREEN 0
+#define ROW_COUNT 0 // for button selection
 
 /*---------------------------------------------------------------------------/
 / DRIVER PARAMETERS
 /---------------------------------------------------------------------------*/
 
 #define DEFAULT_SHIFT_THRESHOLD_RPM 11500
-#define G12_SHIFT_THRESHOLD_RPM 11800
-#define G23_SHIFT_THRESHOLD_RPM 11600
-#define G34_SHIFT_THRESHOLD_RPM 11400
-#define G45_SHIFT_THRESHOLD_RPM 11200
-#define G56_SHIFT_THRESHOLD_RPM 11000
+#define G12_SHIFT_THRESHOLD_RPM 10356
+#define G23_SHIFT_THRESHOLD_RPM 10239
+#define G34_SHIFT_THRESHOLD_RPM 10278
+#define G45_SHIFT_THRESHOLD_RPM 9498
+//#define G56_SHIFT_THRESHOLD_RPM 11000 // unused atm
 
 #define OVERREV_THRESHOLD_RPM_ADDER 500
 
@@ -89,20 +90,29 @@
 #define PICO_CAN_RST        15
 #endif
 
-// Buttons - change if needed
-#define HOLD_TIME 1000          //Button hold time for bottom buttons on default screen. In ms
-#define BUT1 PINC0            //Top left
-#define BUT2 PINC1            //Top right
-#define BUT3 PINC2            //Bottom left
-#define BUT4 PINC3            //Bottom right
+/*---------------------------------------------------------------------------/
+/ BUTTON PINS AND CONSTANTS
+/---------------------------------------------------------------------------*/
+#define BUT1 16 //PINC0
+#define BUT2 14 //PINC1
+#define BUT3 17 //PINC2
+#define BUT4 15 //PINC3
+
 #define PCINT_BUT1 (1<<PCINT8)
 #define PCINT_BUT2 (1<<PCINT9)
 #define PCINT_BUT3 (1<<PCINT10)
 #define PCINT_BUT4 (1<<PCINT11)
 
-/*---------------------------------------------------------------------------/
-/ CUSTOM CONFIGURATION VARIABLES
-/---------------------------------------------------------------------------*/
+#define DEFAULT_SCREEN 1
+#define MENU_SCREEN 2
+#define SETTINGS_SCREEN 3
+#define OPTIONX_SCREEN 4
+#define OPTIONY_SCREEN 5
+
+#define DEBOUNCE_TIME 600
+#define LOCK_TIME 100
+
+#define HOLD_TIME 1000 //Button hold time for bottom buttons on default screen
 
 //  CAN BUS
 /////////////////////
