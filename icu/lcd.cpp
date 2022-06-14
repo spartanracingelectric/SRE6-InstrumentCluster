@@ -87,7 +87,7 @@ void lcd__print_rpm(uint16_t rpm)
   uint8_t rpm_num_digits = 1;
 
   //Round to hundreds
-  rpm = (rpm / 100) * 100;
+//  rpm = (rpm / 100) * 100;
   rpm_num_digits = (int)log10(rpm) + 1;
 
   //clear remaining 1s before reupdating
@@ -145,12 +145,12 @@ void lcd__print_oiltemp(uint8_t oiltemp) // Oil coolant? temperature
     oil_str[oil_MAX_DIGITS - i - 1] = oil_str_temp[i];
   }
 
-  lcd__print8(0, 50, "Oil T");
-  lcd__print14(0, 64, oil_str);
+//  lcd__print8(0, 50, "Oil T");
+//  lcd__print14(0, 64, oil_str);
 }
 
 // E & C car --------------------------------------------------------------- ---------------------------------------------------------------
-void lcd__print_lv(uint8_t lv) // low voltage battery soc
+void lcd__print_lv(uint8_t lv) // low voltage battery
 {
   //lv up to 3 digits + '.';
   uint8_t lv_MAX_DIGITS = 4;
@@ -200,8 +200,10 @@ void lcd__print_etemp(uint8_t etemp) // Accumulator/Engine temperature
     etemp_str[etemp_MAX_DIGITS - i - 1] = etemp_str_temp[i];
   }
 
-  lcd__print8(0, 20, "Eng T");
-  lcd__print14(0, 36, etemp_str);
+//  lcd__print8(0, 20, "Eng T");
+//  lcd__print14(0, 36, etemp_str);
+  lcd__print8(0, 50, "Eng T");
+  lcd__print14(0, 64, etemp_str);
 }
 
 void lcd__print_drs(uint8_t drs) // DRS Open or Closed: 0 or 1
@@ -309,50 +311,7 @@ void lcd__print_wattemp(uint8_t watertemp) // water coolant? temperature
 }
 
 // Menu Functions --------------------------------------------------------------- ---------------------------------------------------------------
-void lcd__print_menu(void)
-{
-  // Screens
-  char* zero = "Diagnostics";
-  char* one = "RPM Threshold";
-  char* two = "Regen";
-  char* three = "Catchphrase";
-  char* four = "Placeholder";
-  char* five = "Back";
-  uint8_t row_count = 0; // for button selection
-
-  // Overlay Button Selection
-  switch (row_count) {
-    case 0:
-      lcd__highlight_menu(0, zero);
-      break;
-    case 1:
-      lcd__highlight_menu(1, one);
-      break;
-    case 2:
-      lcd__highlight_menu(2, two);
-      break;
-    case 3:
-      lcd__highlight_menu(3, three);
-      break;
-    case 4:
-      lcd__highlight_menu(4, four);
-      break;
-    default:
-      lcd__highlight_menu(5, five);
-      break;
-  }
-
-  // Display the rest of the selections
-  if (row_count != 0) lcd__print8(1, 1 + 8, zero);
-  if (row_count != 1) lcd__print8(1, 1 + 16 + 4, one);
-  if (row_count != 2) lcd__print8(1, 1 + 24 + 8, two);
-  if (row_count != 3) lcd__print8(1, 1 + 32 + 12, three);
-  if (row_count != 4) lcd__print8(1, 1 + 40 + 16, four);
-  if (row_count != 5) lcd__print8(128 - lcd->getStrWidth(five) - 1, 63, five);
-
-}
-
-void lcd__highlight_menu(uint8_t row, const char* screen) // number 0-5
+void lcd__highlight_screen(uint8_t row, const char* screen) // number 0-5
 {
   if (row == 5) {
     lcd->drawBox(128 - lcd->getStrWidth(screen) - 2, 64 - lcd->getAscent() - 2, lcd->getStrWidth(screen) + 2, lcd->getAscent() + 2);
@@ -367,11 +326,52 @@ void lcd__highlight_menu(uint8_t row, const char* screen) // number 0-5
   }
 }
 
+void lcd__print_screen(uint8_t selection, uint8_t row, const char* screen[]) // 5 row + Back template
+{
+  // Overlay Highlight Button Selected Screen
+  lcd__highlight_screen(selection, screen[selection]);
+  
+  // Display screens that are not the selected screen
+  for (int i = 0; i < row - 1; i++){
+    if (selection != i) lcd__print8(1, 1 + 8 + 12 * i, screen[i]);
+  }
+  if (selection != 5) lcd__print8(128 - lcd->getStrWidth(screen[5]) - 1, 63, screen[5]);
+}
+
+void lcd__menu(void)
+{
+  // Screens
+  const char* zero = "Diagnostics";
+  const char* one = "RPM Threshold";
+  const char* two = "Regen";
+  const char* three = "Catchphrase";
+  const char* four = "Placeholder";
+  const char* back = "Back";
+  const char* screens[6] = {zero, one, two, three, four, back};
+  
+  lcd__print_screen(ROW_COUNT, 6, screens);
+}
+
+// RPM Threshold Screens ---------------------------------------------------------------
 void lcd__rpm_screen(void) // rpm threshold
 {
-//  lcd__print24(53, (64 - 24) / 2 + 24, DEFAULT_SHIFT_THRESHOLD_RPM);
-  
-  uint16_t rpm = DEFAULT_SHIFT_THRESHOLD_RPM;
+    // Screens
+  char* zero = "Gear 1-2";
+  char* one = "Gear 2-3";
+  char* two = "Gear 3-4";
+  char* three = "Gear 4-5";
+  char* four = "Gear 5-6";
+  char* back = "Back";
+  const char* screens[6] = {zero, one, two, three, four, back};
+
+  lcd__print_screen(ROW_COUNT, 6, screens);
+}
+
+void lcd__rpm_G12(void)
+{
+  //  lcd__print24(53, (64 - 24) / 2 + 24, DEFAULT_SHIFT_THRESHOLD_RPM);
+  char* back = "Back";
+  uint16_t rpm = G12_SHIFT_THRESHOLD_RPM;
     //RPM up to 5 digits
   uint8_t RPM_MAX_DIGITS = 5;
   char rpm_str_temp[6] = "     ";
@@ -393,9 +393,11 @@ void lcd__rpm_screen(void) // rpm threshold
   for (uint8_t i = 0; i < rpm_num_digits; i++) {
     rpm_str[RPM_MAX_DIGITS - i - 1] = rpm_str_temp[i];
   }
-  lcd__print8(0, 8, "RPM Threshold");
-  lcd__print18(53, (64 - 24) / 2 + 24, rpm_str);
-  
+  lcd__print8(0, 8, "RPM | Gear 1-2");
+  lcd__print18(30, 40, rpm_str);
+
+  if (ROW_COUNT == 1) lcd__print8(128 - lcd->getStrWidth(back) - 1, 63, back);
+  else lcd__highlight_screen(5, back);
 }
 
 // LCD Screen Update --------------------------------------------------------------- ---------------------------------------------------------------
@@ -407,16 +409,19 @@ void lcd__update_screen(uint16_t rpm, uint8_t gear, uint8_t lv, uint8_t etemp, u
     if (DISPLAY_SCREEN == 0) {
       lcd__print_rpm(rpm);
       lcd__print_gear(gear);
-      lcd__print_lv(lv);
-      lcd__print_etemp(etemp);
-      lcd__print_oiltemp(oiltemp);
-      lcd__print_drs(drs);
+//      lcd__print_lv(lv);
+//      lcd__print_etemp(etemp);
+//      lcd__print_oiltemp(oiltemp);
+//      lcd__print_drs(drs);
     }
     else if (DISPLAY_SCREEN == 1) {
-      lcd__print_menu();
+      lcd__menu();
     }
     else if (DISPLAY_SCREEN == 2) {
       lcd__rpm_screen();
+    }
+    else if (DISPLAY_SCREEN == 3) {
+      lcd__rpm_G12();
     }
   }
 }
@@ -432,14 +437,14 @@ void lcd__update_screenE(uint16_t hv, uint8_t soc, uint8_t lv, uint8_t etemp, ui
       lcd__print_soc(soc);
       lcd__print_lv(lv);
       lcd__print_etemp(etemp);
-      lcd__print_wattemp(watertemp);
-      lcd__print_drs(drs);
+//      lcd__print_wattemp(watertemp);
+//      lcd__print_drs(drs);
     }
     if (DISPLAY_SCREEN == 1) {
-      lcd__print_menu();
+      lcd__menu();
     }
     else if (DISPLAY_SCREEN == 2) {
-      lcd__rpm_screen();
+//      lcd__rpm_screen();
     }
   }
 }
