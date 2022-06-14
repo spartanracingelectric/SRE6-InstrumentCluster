@@ -72,6 +72,9 @@ void setup()
   leds__wake();
 #if (BOARD_REVISION == 'B')
   can__start();
+#elif (BOARD_REVISION == 'A')
+  can__start();
+  delay(10);
 #endif
   /*
     //LED Sniffing code
@@ -97,10 +100,7 @@ void setup()
 void loop()
 {
   uint32_t curr_millis = millis();
-#if (BOARD_REVISION == 'A')
-  can__start();
-  delay(10);
-#endif
+
   //can__send_test();
   can__receive();
 
@@ -109,41 +109,38 @@ void loop()
   gear = can__get_gear();
   oiltemp = can__get_oiltemp();
   etemp = can__get_engtemp();    
-#endif
-
-#if (POWERTRAIN_TYPE == 'E')
+#elif (POWERTRAIN_TYPE == 'E')
   hv = can__get_hv();
   soc = can__get_soc();
-  wattemp = can__get_wattemp();
+//  wattemp = can__get_wattemp();
   etemp = can__get_acctemp();
 #endif
 
   lv = can__get_lv();
-  drs = can__get_drs();
-  
-  // temporary values. change later ---
-  rpm = 10000;
-  gear = 6;
-  hv = 250;
-  soc = 88;
-  lv = 145;
-  etemp = 150;
-  oiltemp = 150;
-  watertemp = 70;
-  drs = 1;
+//  drs = can__get_dr);
+
 #if (BOARD_REVISION == 'A')
   can__stop();
 #endif
+
+  // temporary values. change later ---
+//  rpm = 10000;
+//  gear = 6;
+//  hv = 250;
+//  soc = 88;
+//  lv = 145;
+//  etemp = 150;
+//  oiltemp = 150;
+//  watertemp = 70;
+//  drs = 1;
+
   leds__rpm_update_flash(rpm, gear, curr_millis);
   //lcd__print_rpm(rpm, curr_millis);
-  if(POWERTRAIN_TYPE == 'C')
-  {
+#if (POWERTRAIN_TYPE == 'C')
     lcd__update_screen(rpm, gear, lv, etemp, oiltemp, drs, curr_millis);
 //    lcd__update_screenE(hv, soc, lv, etemp, watertemp, drs, curr_millis);
-
-  }else if(POWERTRAIN_TYPE == 'E')
-  {
+#elif (POWERTRAIN_TYPE == 'E')
     lcd__update_screenE(hv, soc, lv, etemp, watertemp, drs, curr_millis);
-  }
+#endif
   //delay(500);
 }
