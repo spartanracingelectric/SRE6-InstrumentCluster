@@ -25,12 +25,20 @@ void lcd__print_wattemp(uint8_t watertemp); // Water Coolant Temp
 // E & C car
 void lcd__print_lv(uint8_t lv); // low voltage battery soc
 void lcd__print_etemp(uint8_t etemp); // Accumulator/Engine temperature
+
+// 
 void lcd__rpm_screen(void); // Change RPM Threshold
+void lcd__rpm_G12(void); // Gears 1-2
+void lcd__rpm_G23(void); // Gears 2-3
+void lcd__rpm_G34(void); // Gears 3-4
+void lcd__rpm_G45(void); // Gears 4-5
+void lcd__rpm_G56(void); // Gears 5-6
 //void lcd_print__tiretemp(uint8_t tiretemp); // Tire temperatures multiple variables?
 
 // Menu stuff
-void lcd__print_menu(void);
-void lcd__highlight_menu(uint8_t row, const char* screen);
+void lcd__menu(void);
+void lcd__highlight_screen(uint8_t row, const char* screen);
+void lcd__print_screen(uint8_t selection, uint8_t row, char screen); // 5 row + Back template
 void lcd__drs_screen(uint8_t drs);
 
 void lcd__update_screen(uint16_t rpm, uint8_t gear, uint8_t lv, uint8_t etemp, uint8_t oiltemp, uint8_t drs, uint32_t curr_millis_lcd);
