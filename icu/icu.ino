@@ -18,15 +18,15 @@ U8G2_ST7565_NHD_C12864_F_4W_SW_SPI lcd_u8g2(U8G2_R2, PICO_LCD_SPI_SCK, PICO_LCD_
 
 MD_MAX72XX leds_md = MD_MAX72XX(MAX72XX_HARDWARE_TYPE, PICO_LED_SPI_CS, 1);
 
-uint16_t rpm;
-uint8_t gear;
-uint16_t hv; // is it unsigned int 16? since it's supposed to be a float
-uint8_t soc;
-uint8_t lv;
-uint8_t etemp;
-uint8_t oiltemp;
-uint8_t watertemp;
-uint8_t drs;
+uint16_t rpm = 0;
+uint8_t gear = 0;
+uint16_t hv = 0; // is it unsigned int 16? since it's supposed to be a float
+uint8_t soc = 0;
+uint8_t lv = 0;
+uint8_t etemp = 0;
+uint8_t oiltemp = 0;
+uint8_t watertemp = 0;
+uint8_t drs = 0;
 
 void setup()
 {
