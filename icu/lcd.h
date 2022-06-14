@@ -12,9 +12,15 @@ void lcd__print14(uint8_t x, uint8_t y, char *str);                 //Print str 
 void lcd__print18(uint8_t x, uint8_t y, char *str);                 //Print str with Helvetica Bold Size 18
 void lcd__print24(uint8_t x, uint8_t y, char *str);                 //Print str with Helvetica Bold Size 24
 void lcd__print_default_screen_template();
+#if (POWERTRAIN_TYPE == 'C')
 void lcd__print_rpm(uint16_t rpm);
 void lcd__print_gear(uint8_t gear);
 void lcd__update_screen(uint16_t rpm, uint8_t gear, uint32_t curr_millis_lcd);
+#else
+void lcd__print_hv(float hv);
+void lcd__print_lv(float lv);
+void lcd__update_screen(float hv, float lv, uint32_t curr_millis_lcd);
+#endif
 
 
 #endif /* LCD_H_ */

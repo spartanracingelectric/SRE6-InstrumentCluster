@@ -16,8 +16,13 @@ U8G2_ST7565_NHD_C12864_F_4W_SW_SPI lcd_u8g2(U8G2_R2, PICO_LCD_SPI_SCK, PICO_LCD_
 // PAROLA_HW refers to an 8x8 LED matrix which we are sort of simulating
 MD_MAX72XX leds_md = MD_MAX72XX(MAX72XX_HARDWARE_TYPE, PICO_LED_SPI_CS, 1);
 
-uint16_t rpm;
-uint8_t gear;
+#if (POWERTRAIN_TYPE == 'C')
+uint16_t rpm = 0;
+uint8_t gear = 0;
+#else
+float hv = 0.0f;
+float lv = 0.0f;
+#endif
 
 void setup()
 {
@@ -92,13 +97,22 @@ void loop()
 #endif
   //can__send_test();
   can__receive();
+#if (POWERTRAIN_TYPE == 'C')
   rpm = can__get_rpm();
   gear = can__get_gear();
+#else
+  hv = can__get_hv();
+  lv = can__get_lv();
+#endif
+
 #if (BOARD_REVISION == 'A')
   can__stop();
 #endif
+#if (POWERTRAIN_TYPE == 'C')
   leds__rpm_update_flash(rpm, gear, curr_millis);
-  //lcd__print_rpm(rpm, curr_millis);
   lcd__update_screen(rpm, gear, curr_millis);
+#else
+  lcd__update_screen(hv, lv, curr_millis);
+#endif
   //delay(500);
 }

@@ -108,6 +108,21 @@ void lcd__print_gear(uint8_t gear)
     lcd__print24(54, 60, gear_str);
 }
 
+void lcd__print_hv(float hv) {
+    char hv_str[6] = "     ";
+    // Round to one decimal place
+    sprintf(hv_str, "%0.1f", hv);
+    lcd__print24(18, 30, hv_str);
+}
+
+void lcd__print_lv(float lv) {
+    char lv_str[6] = "     ";
+    // Round to two decimal places
+    sprintf(lv_str, "%0.2f", lv);
+    lcd__print24(18, 60, lv_str);
+}
+
+#if (POWERTRAIN_TYPE == 'C')
 void lcd__update_screen(uint16_t rpm, uint8_t gear, uint32_t curr_millis_lcd)
 {
     if (curr_millis_lcd-prev_millis_lcd >= LCD_UPDATE_MS) {
@@ -117,3 +132,14 @@ void lcd__update_screen(uint16_t rpm, uint8_t gear, uint32_t curr_millis_lcd)
         lcd__print_gear(gear);
     }
 }
+#else
+void lcd__update_screen(float hv, float lv, uint32_t curr_millis_lcd)
+{
+    if (curr_millis_lcd-prev_millis_lcd >= LCD_UPDATE_MS) {
+        prev_millis_lcd = curr_millis_lcd;
+        lcd__clear_screen();
+        lcd__print_hv(hv);
+        lcd__print_lv(lv);
+    }
+}
+#endif
