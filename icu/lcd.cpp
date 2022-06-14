@@ -128,7 +128,7 @@ void lcd__print_oiltemp(uint8_t oiltemp) // Oil coolant? temperature
 {
   uint8_t oil_MAX_DIGITS = 3;
   uint8_t oil_num_digits;
-  char oil_str[4] = "\0";
+  char oil_str[4] = "   ";
   char oil_str_temp[4] = "   ";
 
   oil_num_digits = (int)log10(oiltemp) + 1;
@@ -187,10 +187,14 @@ void lcd__print_etemp(uint8_t etemp) // Accumulator/Engine temperature
 {
   uint8_t etemp_MAX_DIGITS = 3;
   uint8_t etemp_num_digits;
-  char etemp_str[4] = "\0";
+  char etemp_str[4] = "   ";
   char etemp_str_temp[4] = "   ";
 
   etemp_num_digits = (int)log10(etemp) + 1;
+
+  if (etemp_num_digits == 2) {
+    etemp_str[0] = ' ';
+  }
 
   for (int i = 0; i < etemp_num_digits; i++) {
     etemp_str_temp[i] = etemp % 10 + '0';
@@ -208,23 +212,23 @@ void lcd__print_etemp(uint8_t etemp) // Accumulator/Engine temperature
 
 void lcd__print_drs(uint8_t drs) // DRS Open or Closed: 0 or 1
 {
-  lcd__print8(90, 64 - 26, "DRS");
-  if (drs == 0)
-  {
-    lcd__print14(113, 64, "O");
-  }
-  else if (drs == 1)
-  {
-    lcd__print14(113, 64 - 26, "M");
-  }
-  else if (drs == 2)
-  {
-    lcd__print14(113, 64, "A");
-  }
-  else if (drs == 3)
-  {
-    lcd__print14(113, 64 - 30, "C");
-  }
+//  lcd__print8(90, 64 - 26, "DRS");
+//  if (drs == 0)
+//  
+//    lcd__print14(113, 64, "O");
+//  }
+//  else if (drs == 1)
+//  {
+//    lcd__print14(113, 64 - 26, "M");
+//  }
+//  else if (drs == 2)
+//  {
+//    lcd__print14(113, 64, "A");
+//  }
+//  else if (drs == 3)
+//  {
+//    lcd__print14(113, 64 - 30, "C");
+//  }
 
 }
 
@@ -289,7 +293,7 @@ void lcd__print_wattemp(uint8_t watertemp) // water coolant? temperature
 {
   uint8_t water_MAX_DIGITS = 3;
   uint8_t water_num_digits;
-  char water_str[4] = "\0";
+  char water_str[4] = "   ";
   char water_str_temp[4] = "   ";
 
   water_num_digits = (int)log10(watertemp) + 1;
