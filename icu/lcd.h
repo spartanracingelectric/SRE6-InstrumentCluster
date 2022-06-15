@@ -20,11 +20,11 @@ void lcd__print_rpm(uint16_t rpm);
 void lcd__print_gear(uint8_t gear);
 void lcd__print_oiltemp(uint8_t oiltemp); // Oil coolant? temperature
 // E car
-void lcd__print_hv(uint16_t hv); // accumulator voltage
+void lcd__print_hv(float hv); // accumulator voltage
 void lcd__print_soc(uint8_t soc); // State of charge 0-100%
 void lcd__print_wattemp(uint8_t watertemp); // Water Coolant Temp
 // E & C car
-void lcd__print_lv(uint8_t lv); // low voltage battery soc
+void lcd__print_lv(float lv); // low voltage battery soc
 void lcd__print_etemp(uint8_t etemp); // Accumulator/Engine temperature
 
 // 
@@ -43,7 +43,7 @@ void lcd__print_screen(uint8_t selection, uint8_t row, char screen); // 5 row + 
 void lcd__drs_screen(uint8_t drs);
 
 void lcd__update_screen(uint16_t rpm, uint8_t gear, uint8_t lv, uint8_t etemp, uint8_t oiltemp, uint8_t drs, uint32_t curr_millis_lcd);
-void lcd__update_screenE(uint16_t hv, uint8_t soc, uint8_t lv, uint8_t etemp, uint8_t oiltemp, uint8_t drs, uint32_t curr_millis_lcd);
+void lcd__update_screenE(float hv, uint8_t soc, float lv, uint8_t etemp, uint8_t oiltemp, uint8_t drs, uint32_t curr_millis_lcd);
 
 
 #endif /* LCD_H_ */
