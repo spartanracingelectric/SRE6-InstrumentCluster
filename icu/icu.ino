@@ -19,7 +19,7 @@ U8G2_ST7565_NHD_C12864_F_4W_SW_SPI lcd_u8g2(U8G2_R2, PICO_LCD_SPI_SCK, PICO_LCD_
 MD_MAX72XX leds_md = MD_MAX72XX(MAX72XX_HARDWARE_TYPE, PICO_LED_SPI_CS, 1);
 
 uint16_t rpm = 0;
-uint8_t gear = 0;
+uint8_t gear = 1;
 uint16_t hv = 0; // is it unsigned int 16? since it's supposed to be a float
 uint8_t soc = 0;
 uint8_t lv = 0;
@@ -64,7 +64,6 @@ void setup()
 
   // Initialize lcd, pass U8G2 object pointer
   lcd__init(&lcd_u8g2);
-
 
   //Non functional as clearBuffer in loop overwrites for now
   lcd__print_default_screen_template();
@@ -114,9 +113,10 @@ void loop()
   soc = can__get_soc();
 //  wattemp = can__get_wattemp();
   etemp = can__get_acctemp();
+  lv = can__get_lv();
+
 #endif
 
-  lv = can__get_lv();
 //  drs = can__get_dr);
 
 #if (BOARD_REVISION == 'A')
