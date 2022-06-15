@@ -5,12 +5,12 @@ U8G2_ST7565_NHD_C12864_F_4W_SW_SPI *lcd; // changed from SW -> HW
 
 uint32_t prev_millis_lcd = 0;
 
-// values to check current values^ and help with refresh rate on LCD
+// values to check current values and help with refresh rate on LCD
 uint16_t rpm_temp = 1;
 uint8_t gear_temp = 0;
-uint16_t hv_temp = 1; // is it unsigned int 16? since it's supposed to be a float
 uint8_t soc_temp = 1;
-uint8_t lv_temp = 1;
+float hv_temp = 1.0; 
+float lv_temp = 1.0;
 uint8_t etemp_temp = 1;
 uint8_t oiltemp_temp = 1;
 uint8_t watertemp_temp = 1;
@@ -90,10 +90,10 @@ void lcd__print_default_screen_template()
   lcd__clear_screen();
   
   #if (POWERTRAIN_TYPE == 'E')
-  lcd__print8(114, 45, "LV");
-  lcd__print8(0, 45, "Eng T");
+  lcd__print8(101, 45, "Eng T");
+  lcd__print8(0, 45, "LV");
   lcd__print8(102, 18, "volts");
-  lcd__print8(54, 35, "SOC"); 
+  lcd__print8(53, 35, "SOC"); 
   
   #elif(POWERTRAIN_TYPE == 'C')
   lcd__print8(128 - 20, 18, "rpm");
@@ -103,13 +103,13 @@ void lcd__print_default_screen_template()
 
 void lcd__update_section (uint8_t sect)
 {
-  int engine[] = {0, 64-14, 25, 14};
-  int hv[] = {40, 0, 45, 18};
-  int lv[] = {70, 64-14, 38, 14};
+  int etemp[] = {84, 64-14, 25, 14};
+  int hv[] = {30, 0, 70, 18};
+  int lv[] = {0, 64-14, 38, 14};
   int soc[] = {40, 64-24, 45, 24};
   int rpm[] = {30, 0, 75,18};
   int gear[] = {50, 64-24, 30, 24};
-  int* sections[] = {engine, hv, lv, soc, rpm, gear};
+  int* sections[] = {etemp, hv, lv, soc, rpm, gear};
   
   lcd->setDrawColor(0);
   lcd->drawBox(sections[sect][0], sections[sect][1], sections[sect][2], sections[sect][3]);
@@ -199,7 +199,7 @@ void lcd__print_oiltemp(uint8_t oiltemp) // Oil coolant? temperature
 }
 
 // E & C car --------------------------------------------------------------- ---------------------------------------------------------------
-void lcd__print_lv(uint8_t lv) // low voltage battery
+void lcd__print_lv(float lv) // low voltage battery
 {
   if (lv == lv_temp) return; // if the value is the same, don't update that "section" 
   
@@ -210,7 +210,7 @@ void lcd__print_lv(uint8_t lv) // low voltage battery
   sprintf(lv_str, "%0.2f", lv);
 
   lcd__update_section(2);
-  lcd__print14(94, 64, lv_str);
+  lcd__print14(0, 64, lv_str);
 }
 
 void lcd__print_etemp(uint8_t etemp) // Accumulator/Engine temperature
@@ -219,29 +219,14 @@ void lcd__print_etemp(uint8_t etemp) // Accumulator/Engine temperature
   
   etemp_temp = etemp; // else, update value_temp and redraw that section
   
-  uint8_t etemp_MAX_DIGITS = 3;
-  uint8_t etemp_num_digits;
   char etemp_str[4] = "   ";
-  char etemp_str_temp[4] = "   ";
 
-  etemp_num_digits = (int)log10(etemp) + 1;
-
-  if (etemp_num_digits == 2) {
-    etemp_str[0] = ' ';
-  }
-
-  for (int i = 0; i < etemp_num_digits; i++) {
-    etemp_str_temp[i] = etemp % 10 + '0';
-    etemp = etemp / 10;
-  }
-  for (uint8_t i = 0; i < etemp_num_digits; i++) {
-    etemp_str[etemp_MAX_DIGITS - i - 1] = etemp_str_temp[i];
-  }
+  sprintf(etemp_str, "%3hhu", etemp);
 
 //  lcd__print8(0, 20, "Eng T");
 //  lcd__print14(0, 36, etemp_str);
   lcd__update_section(0);
-  lcd__print14(0, 64, etemp_str);
+  lcd__print14(99, 64, etemp_str);
 }
 
 void lcd__print_drs(uint8_t drs) // DRS Open or Closed: 0 or 1
@@ -267,7 +252,7 @@ void lcd__print_drs(uint8_t drs) // DRS Open or Closed: 0 or 1
 }
 
 // Electric car --------------------------------------------------------------- ---------------------------------------------------------------
-void lcd__print_hv(uint16_t hv) // accumulator voltage (comes in float or integer?)
+void lcd__print_hv(float hv) // accumulator voltage (comes in float or integer?)
 {
   if (hv == hv_temp) return; // if the value is the same, don't update that "section" 
   
@@ -276,10 +261,10 @@ void lcd__print_hv(uint16_t hv) // accumulator voltage (comes in float or intege
   
   char hv_str[6] = "   ";
   // Round to one decimal place
-  sprintf(hv_str, "%0.1f", hv);
+  sprintf(hv_str, "%5.1f", hv);
 
   lcd__update_section(1);
-  lcd__print18(46, 18, hv_str);
+  lcd__print18(35, 18, hv_str);
 }
 
 void lcd__print_soc(uint8_t soc) // State of charge 0-100%
@@ -287,28 +272,10 @@ void lcd__print_soc(uint8_t soc) // State of charge 0-100%
   if (soc == soc_temp) return; // if the value is the same, don't update that "section" 
   
   soc_temp = soc; // else, update value_temp=value and redraw that section
-   
-  //soc up to 3 digits
-  uint8_t SOC_MAX_DIGITS = 3;
-  char soc_str_temp[4] = "   ";
+
   char soc_str[4] = "   ";
-  uint8_t soc_num_digits = 1;
 
-  if (soc != 0)
-    soc_num_digits = (int)log10(soc) + 1;
-
-  //clear remaining 1s before reupdating
-  if (soc_num_digits == 2) {
-    soc_str[0] = ' ';
-  }
-
-  for (uint8_t i = 0; i < soc_num_digits; i++) {
-    soc_str_temp[i] = soc % 10 + '0';
-    soc /= 10;
-  }
-  for (uint8_t i = 0; i < soc_num_digits; i++) {
-    soc_str[SOC_MAX_DIGITS - i - 1] = soc_str_temp[i];
-  }
+  sprintf(soc_str, "%3hhu", soc);
   
   lcd__update_section(3);
   lcd__print18(46, 64, soc_str);
@@ -430,7 +397,7 @@ void lcd__rpm_G12(void)
 }
 
 // LCD Screen Update --------------------------------------------------------------- ---------------------------------------------------------------
-void lcd__update_screen(uint16_t rpm, uint8_t gear, uint8_t lv, uint8_t etemp, uint8_t oiltemp, uint8_t drs, uint32_t curr_millis_lcd)
+void lcd__update_screen(uint16_t rpm, uint8_t gear, float lv, uint8_t etemp, uint8_t oiltemp, uint8_t drs, uint32_t curr_millis_lcd)
 {
   if (curr_millis_lcd - prev_millis_lcd >= LCD_UPDATE_MS) {
     prev_millis_lcd = curr_millis_lcd;
@@ -454,7 +421,7 @@ void lcd__update_screen(uint16_t rpm, uint8_t gear, uint8_t lv, uint8_t etemp, u
   }
 }
 
-void lcd__update_screenE(uint16_t hv, uint8_t soc, uint8_t lv, uint8_t etemp, uint8_t watertemp, uint8_t drs, uint32_t curr_millis_lcd)
+void lcd__update_screenE(float hv, uint8_t soc, float lv, uint8_t etemp, uint8_t watertemp, uint8_t drs, uint32_t curr_millis_lcd)
 {
   if (curr_millis_lcd - prev_millis_lcd >= LCD_UPDATE_MS) {
     prev_millis_lcd = curr_millis_lcd;
