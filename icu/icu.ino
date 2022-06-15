@@ -20,10 +20,10 @@ MD_MAX72XX leds_md = MD_MAX72XX(MAX72XX_HARDWARE_TYPE, PICO_LED_SPI_CS, 1);
 
 uint16_t rpm = 0;
 uint8_t gear = 1;
-uint16_t hv = 0; // is it unsigned int 16? since it's supposed to be a float
-uint8_t soc = 0;
-uint8_t lv = 0;
-uint8_t etemp = 0;
+float hv = 0.0f; // is it unsigned int 16? since it's supposed to be a float
+uint8_t soc = 3;
+float lv = 0.0f;
+uint8_t etemp = 1;
 uint8_t oiltemp = 0;
 uint8_t watertemp = 0;
 uint8_t drs = 0;
@@ -123,24 +123,27 @@ void loop()
   can__stop();
 #endif
 
-  // temporary values. change later ---
+  // placeholder values. uncomment when needed
 //  rpm = 10000;
 //  gear = 6;
-//  hv = 250;
-//  soc = 88;
-//  lv = 145;
+//  hv = 250.11430;
+//  soc = 99;
+//  lv = 14.540510;
 //  etemp = 150;
 //  oiltemp = 150;
 //  watertemp = 70;
 //  drs = 1;
+//soc++;
+//etemp++;
 
   leds__rpm_update_flash(rpm, gear, curr_millis);
   //lcd__print_rpm(rpm, curr_millis);
 #if (POWERTRAIN_TYPE == 'C')
     lcd__update_screen(rpm, gear, lv, etemp, oiltemp, drs, curr_millis);
-//    lcd__update_screenE(hv, soc, lv, etemp, watertemp, drs, curr_millis);
+
 #elif (POWERTRAIN_TYPE == 'E')
     lcd__update_screenE(hv, soc, lv, etemp, watertemp, drs, curr_millis);
+    
 #endif
   //delay(500);
 }
