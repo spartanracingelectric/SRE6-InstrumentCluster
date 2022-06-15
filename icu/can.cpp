@@ -49,7 +49,7 @@ static void can__engine_receive (const CANMessage & inMessage)
 
 static void can__hv_receive (const CANMessage & inMessage)
 {
-  curr_hv = inMessage.data[1];
+  curr_hv = ((inMessage.data[4]) | (inMessage.data[5] << 8) | (inMessage.data[6] << 16) | (inMessage.data[7] << 24)) * .001f;
 }
 
 static void can__soc_receive (const CANMessage & inMessage)
@@ -69,7 +69,7 @@ static void can__acctemp_receive (const CANMessage & inMessage)
 
 static void can__lv_receive (const CANMessage & inMessage)
 {
-  curr_lv = inMessage.data[1];
+  curr_lv = ((inMessage.data[0]) | (inMessage.data[1] << 8)) * 0.001f;
 }
 
 static void can__drs_receive (const CANMessage & inMessage)
