@@ -5,6 +5,17 @@ U8G2_ST7565_NHD_C12864_F_4W_SW_SPI *lcd; // changed from SW -> HW
 
 uint32_t prev_millis_lcd = 0;
 
+// values to check current values^ and help with refresh rate on LCD
+uint16_t rpm_temp = 1;
+uint8_t gear_temp = 0;
+uint16_t hv_temp = 1; // is it unsigned int 16? since it's supposed to be a float
+uint8_t soc_temp = 1;
+uint8_t lv_temp = 1;
+uint8_t etemp_temp = 1;
+uint8_t oiltemp_temp = 1;
+uint8_t watertemp_temp = 1;
+uint8_t drs_temp = 1;
+
 // LCD Set-up --------------------------------------------------------------- ---------------------------------------------------------------
 void lcd__init(U8G2_ST7565_NHD_C12864_F_4W_SW_SPI *lcd_ptr) // changed from SW -> HW
 {
@@ -14,7 +25,8 @@ void lcd__init(U8G2_ST7565_NHD_C12864_F_4W_SW_SPI *lcd_ptr) // changed from SW -
   lcd->begin();
 }
 
-void lcd__clear_screen() {
+void lcd__clear_screen() 
+{
   lcd->clearBuffer();
 }
 
@@ -61,25 +73,56 @@ void lcd__print18(uint8_t x, uint8_t y, char *str)
 void lcd__print24(uint8_t x, uint8_t y, char *str)
 {
   // Need to implement a way to update ONLY the space that is to be printed
-  //lcd->clearBuffer();					// clear the internal memory
+  //lcd->clearBuffer();          // clear the internal memory
 
   //Refuses to take in a passed parameter for some reason
   //Bandaid fix to make multiple functions
-  lcd->setFont(u8g2_font_helvB24_tr);	// choose a suitable font
+  lcd->setFont(u8g2_font_helvB24_tr); // choose a suitable font
 
-  lcd->drawStr(x, y, str);	// write something to the internal memory
-  lcd->sendBuffer();					// transfer internal memory to the display
+  lcd->drawStr(x, y, str);  // write something to the internal memory
+  lcd->sendBuffer();          // transfer internal memory to the display
 }
-
 void lcd__print_default_screen_template()
 {
   char default_str[] = "CARS 3";
   lcd__print14(25, 45, default_str);
+
+  lcd__clear_screen();
+  
+  #if (POWERTRAIN_TYPE == 'E')
+  lcd__print8(114, 45, "LV");
+  lcd__print8(0, 45, "Eng T");
+  lcd__print8(102, 18, "volts");
+  lcd__print8(54, 35, "SOC"); 
+  
+  #elif(POWERTRAIN_TYPE == 'C')
+  lcd__print8(128 - 20, 18, "rpm");
+  lcd__print8(52, 37, "Gear");
+  #endif
+}
+
+void lcd__update_section (uint8_t sect)
+{
+  int engine[] = {0, 64-14, 25, 14};
+  int hv[] = {40, 0, 45, 18};
+  int lv[] = {70, 64-14, 38, 14};
+  int soc[] = {40, 64-24, 45, 24};
+  int rpm[] = {30, 0, 75,18};
+  int gear[] = {50, 64-24, 30, 24};
+  int* sections[] = {engine, hv, lv, soc, rpm, gear};
+  
+  lcd->setDrawColor(0);
+  lcd->drawBox(sections[sect][0], sections[sect][1], sections[sect][2], sections[sect][3]);
+  lcd->setDrawColor(1);
 }
 
 // Combustion Car --------------------------------------------------------------- ---------------------------------------------------------------
 void lcd__print_rpm(uint16_t rpm)
 {
+  if (0 == rpm_temp) return; // if the value is the same, don't update that "section" 
+  
+  rpm_temp = rpm; // else, update value_temp and redraw that section
+  
   //RPM up to 5 digits
   uint8_t RPM_MAX_DIGITS = 5;
   char rpm_str_temp[6] = "     ";
@@ -102,26 +145,32 @@ void lcd__print_rpm(uint16_t rpm)
   for (uint8_t i = 0; i < rpm_num_digits; i++) {
     rpm_str[RPM_MAX_DIGITS - i - 1] = rpm_str_temp[i];
   }
-  lcd__print8(128 - 20, 18, "rpm");
+  
+  lcd__update_section(4);
   lcd__print18(35, 18, rpm_str);
 }
 
 void lcd__print_gear(uint8_t gear)
 {
-  char gear_str[4] = "\0";
+  if (gear == gear_temp) return; // if the value is the same, don't update that "section" 
+  
+  gear_temp = gear; // else, update value_temp and redraw that section
+  
+  char gear_str[2] = " ";
   //gear is uint8_t, so no negative values expected
   //We only need to compare for gear values past 6
   //If gear out of range
   if (gear > 6) {
-    strcpy(gear_str, "ERR");
+    strcpy(gear_str, "¡");
   }
   else {
     //Print gear (turn int into char first)
     //We can assume gear is one digit based on first conditional
     gear_str[0] = gear + '0';
   }
-  lcd__print8(52, 37, "Gear");
-  lcd__print24((128 - 16) / 2, 64, gear_str);
+
+  lcd__update_section(5);
+  lcd__print24(56, 64, gear_str);
 }
 
 void lcd__print_oiltemp(uint8_t oiltemp) // Oil coolant? temperature
@@ -152,39 +201,24 @@ void lcd__print_oiltemp(uint8_t oiltemp) // Oil coolant? temperature
 // E & C car --------------------------------------------------------------- ---------------------------------------------------------------
 void lcd__print_lv(uint8_t lv) // low voltage battery
 {
-  //lv up to 3 digits + '.';
-  uint8_t lv_MAX_DIGITS = 4;
-  char lv_str_temp[5] = "    ";
-  char lv_str[5] = "    ";
+  if (lv == lv_temp) return; // if the value is the same, don't update that "section" 
+  
+  lv_temp = lv; // else, update value_temp and redraw that section
+  
+  char lv_str[6] = "     ";
 
-  //  //Regain decimals: 100 -> 10.0 V
-  //  lv = lv/10;
+  sprintf(lv_str, "%0.2f", lv);
 
-  // Convert to string
-  for (uint8_t i = 0; i < lv_MAX_DIGITS; i++) {
-    if (i == 1) {
-      lv_str_temp[i] = '.';
-      continue;
-    }
-    lv_str_temp[i] = lv % 10 + '0';
-    lv /= 10;
-  }
-
-  // Reorder string_temp
-  for (uint8_t i = 0; i < lv_MAX_DIGITS; i++) {
-    if (lv_str_temp[lv_MAX_DIGITS - 1] == '0' && i == lv_MAX_DIGITS - 1) {
-      lv_str[0] = ' ';
-      continue;
-    }
-    lv_str[lv_MAX_DIGITS - i - 1] = lv_str_temp[i];
-  }
-
-  lcd__print8(114, 64 - 15, "LV");
+  lcd__update_section(2);
   lcd__print14(94, 64, lv_str);
 }
 
 void lcd__print_etemp(uint8_t etemp) // Accumulator/Engine temperature
 {
+  if (etemp == etemp_temp) return; // if the value is the same, don't update that "section" 
+  
+  etemp_temp = etemp; // else, update value_temp and redraw that section
+  
   uint8_t etemp_MAX_DIGITS = 3;
   uint8_t etemp_num_digits;
   char etemp_str[4] = "   ";
@@ -206,13 +240,13 @@ void lcd__print_etemp(uint8_t etemp) // Accumulator/Engine temperature
 
 //  lcd__print8(0, 20, "Eng T");
 //  lcd__print14(0, 36, etemp_str);
-  lcd__print8(0, 50, "Eng T");
+  lcd__update_section(0);
   lcd__print14(0, 64, etemp_str);
 }
 
 void lcd__print_drs(uint8_t drs) // DRS Open or Closed: 0 or 1
 {
-//  lcd__print8(90, 64 - 26, "DRS");
+//  lcd__print8(90, 64 - 26, "DRS"); // a bunch of errors popped up out of nowhere
 //  if (drs == 0)
 //  
 //    lcd__print14(113, 64, "O");
@@ -235,34 +269,25 @@ void lcd__print_drs(uint8_t drs) // DRS Open or Closed: 0 or 1
 // Electric car --------------------------------------------------------------- ---------------------------------------------------------------
 void lcd__print_hv(uint16_t hv) // accumulator voltage (comes in float or integer?)
 {
-  //RPM up to 3 digits
-  uint8_t HV_MAX_DIGITS = 3;
-  char hv_str_temp[4] = "   ";
-  char hv_str[4] = "   ";
-  uint8_t hv_num_digits = 1;
+  if (hv == hv_temp) return; // if the value is the same, don't update that "section" 
+  
+  hv_temp = hv; // else, update value_temp=value and redraw that section
+  // to test: 0 == hv_temp & hv=hv_temp--
+  
+  char hv_str[6] = "   ";
+  // Round to one decimal place
+  sprintf(hv_str, "%0.1f", hv);
 
-  if (hv != 0)
-    hv_num_digits = (int)log10(hv) + 1;
-
-  //clear remaining 1s before reupdating
-  if (hv_num_digits == 2) {
-    hv_str[0] = ' ';
-  }
-
-  for (uint8_t i = 0; i < hv_num_digits; i++) {
-    hv_str_temp[i] = hv % 10 + '0';
-    hv /= 10;
-  }
-  for (uint8_t i = 0; i < hv_num_digits; i++) {
-    hv_str[HV_MAX_DIGITS - i - 1] = hv_str_temp[i];
-  }
-
-  lcd__print8(102, 18, "volts");
+  lcd__update_section(1);
   lcd__print18(46, 18, hv_str);
 }
 
 void lcd__print_soc(uint8_t soc) // State of charge 0-100%
 {
+  if (soc == soc_temp) return; // if the value is the same, don't update that "section" 
+  
+  soc_temp = soc; // else, update value_temp=value and redraw that section
+   
   //soc up to 3 digits
   uint8_t SOC_MAX_DIGITS = 3;
   char soc_str_temp[4] = "   ";
@@ -284,8 +309,8 @@ void lcd__print_soc(uint8_t soc) // State of charge 0-100%
   for (uint8_t i = 0; i < soc_num_digits; i++) {
     soc_str[SOC_MAX_DIGITS - i - 1] = soc_str_temp[i];
   }
-
-  lcd__print8(54, 37, "SOC");
+  
+  lcd__update_section(3);
   lcd__print18(46, 64, soc_str);
 }
 
@@ -409,7 +434,6 @@ void lcd__update_screen(uint16_t rpm, uint8_t gear, uint8_t lv, uint8_t etemp, u
 {
   if (curr_millis_lcd - prev_millis_lcd >= LCD_UPDATE_MS) {
     prev_millis_lcd = curr_millis_lcd;
-    lcd__clear_screen();
     if (DISPLAY_SCREEN == 0) {
       lcd__print_rpm(rpm);
       lcd__print_gear(gear);
@@ -434,7 +458,7 @@ void lcd__update_screenE(uint16_t hv, uint8_t soc, uint8_t lv, uint8_t etemp, ui
 {
   if (curr_millis_lcd - prev_millis_lcd >= LCD_UPDATE_MS) {
     prev_millis_lcd = curr_millis_lcd;
-    lcd__clear_screen();
+//    lcd__clear_screen();
 
     if (DISPLAY_SCREEN == 0) {
       lcd__print_hv(hv);
