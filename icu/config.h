@@ -12,8 +12,8 @@
 //#define BOARD_REVISION 'A'
 #define BOARD_REVISION 'B'
 
-//#define POWERTRAIN_TYPE 'C'
-#define POWERTRAIN_TYPE 'E'
+#define POWERTRAIN_TYPE 'C'
+//#define POWERTRAIN_TYPE 'E'
 
 // Set to 1 if you want to print the input data over serial
 #define SERIAL_DEBUG_EN 0
