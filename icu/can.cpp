@@ -145,10 +145,11 @@ const ACAN2515AcceptanceFilter filters [] =
 #elif (POWERTRAIN_TYPE == 'E')
 const ACAN2515AcceptanceFilter filters [] =
 {
-  {standard2515Filter (CAN_HV_ADDR, 0, 0), can__hv_receive},
-  {standard2515Filter (CAN_SOC_ADDR, 0, 0), can__soc_receive},
-  {standard2515Filter (CAN_BAT_TEMP_ADDR, 0, 0), can__acctemp_receive},
-  {standard2515Filter (CAN_LV_ADDR, 0, 0), can__lv_receive}
+  //Must have addresses in increasing order
+  {standard2515Filter (CAN_LV_ADDR, 0, 0), can__lv_receive},
+  {standard2515Filter (CAN_HV_ADDR, 0, 0), can__hv_receive}
+  //{standard2515Filter (CAN_SOC_ADDR, 0, 0), can__soc_receive},
+  //{standard2515Filter (CAN_BAT_TEMP_ADDR, 0, 0), can__acctemp_receive},
 } ;
 #endif
 
@@ -259,7 +260,7 @@ void can__receive()
   */
   if (can.available ()) {
     can.receive (frame) ;
-    Serial.println((frame.data[1]) | (frame.data[0] << 8));
+    //Serial.println((frame.data[1]) | (frame.data[0] << 8));
   }
   
 }
