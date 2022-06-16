@@ -18,15 +18,19 @@ U8G2_ST7565_NHD_C12864_F_4W_SW_SPI lcd_u8g2(U8G2_R2, PICO_LCD_SPI_SCK, PICO_LCD_
 
 MD_MAX72XX leds_md = MD_MAX72XX(MAX72XX_HARDWARE_TYPE, PICO_LED_SPI_CS, 1);
 
+#if (POWERTRAIN_TYPE == 'C')
 uint16_t rpm = 0;
-uint8_t gear = 1;
-float hv = 0.0f; // is it unsigned int 16? since it's supposed to be a float
-uint8_t soc = 3;
+uint8_t gear = 0;
+float oilpress = 0;
 float lv = 0.0f;
-uint8_t etemp = 1;
-uint8_t oiltemp = 0;
-uint8_t watertemp = 0;
 uint8_t drs = 0;
+
+#elif (POWERTRAIN_TYPE == 'E')
+float hv = 0.0f; 
+float soc = 0.0f;
+float lv = 0.0f;
+float acctemp = 0.0f;
+#endif
 
 void setup()
 {
@@ -71,9 +75,6 @@ void setup()
   leds__wake();
 #if (BOARD_REVISION == 'B')
   can__start();
-#elif (BOARD_REVISION == 'A')
-  can__start();
-  delay(10);
 #endif
   /*
     //LED Sniffing code
@@ -99,22 +100,25 @@ void setup()
 void loop()
 {
   uint32_t curr_millis = millis();
-
+  #if (BOARD_REVISION == 'A')
+    can__start();
+    delay(10);
+  #endif
   //can__send_test();
   can__receive();
 
 #if(POWERTRAIN_TYPE == 'C')
   rpm = can__get_rpm();
   gear = can__get_gear();
-  oiltemp = can__get_oiltemp();
-  etemp = can__get_engtemp();    
+  oilpress = can__get_oilpress();
+  lv = can__get_lv();
+  drs = can__get_drs();
 #elif (POWERTRAIN_TYPE == 'E')
   hv = can__get_hv();
-  soc = can__get_soc();
+//  soc = can__get_soc();
 //  wattemp = can__get_wattemp();
-  etemp = can__get_acctemp();
+//  acctemp = can__get_acctemp();
   lv = can__get_lv();
-
 #endif
 
 //  drs = can__get_dr);
@@ -125,24 +129,21 @@ void loop()
 
   // placeholder values. uncomment when needed
 //  rpm = 10000;
-//  gear = 6;
-//  hv = 250.11430;
-//  soc = 99;
-//  lv = 14.540510;
-//  etemp = 150;
-//  oiltemp = 150;
-//  watertemp = 70;
-//  drs = 1;
-//soc++;
-//etemp++;
+//  gear = 1;
+  oilpress = 15; // most likely float - reference hv or lv
+  drs = 3;
+  lv = 14.540510;
+//  hv = 250.81430;
+//  soc = 97;
+//  acctemp = 51.8234;
 
-  leds__rpm_update_flash(rpm, gear, curr_millis);
   //lcd__print_rpm(rpm, curr_millis);
 #if (POWERTRAIN_TYPE == 'C')
-    lcd__update_screen(rpm, gear, lv, etemp, oiltemp, drs, curr_millis);
+    leds__rpm_update_flash(rpm, gear, curr_millis);
+    lcd__update_screen(rpm, gear, lv, oilpress, drs, curr_millis);
 
 #elif (POWERTRAIN_TYPE == 'E')
-    lcd__update_screenE(hv, soc, lv, etemp, watertemp, drs, curr_millis);
+    lcd__update_screenE(hv, soc, lv, acctemp, curr_millis);
     
 #endif
   //delay(500);
