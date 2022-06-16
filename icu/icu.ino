@@ -130,9 +130,9 @@ void loop()
   // placeholder values. uncomment when needed
 //  rpm = 10000;
 //  gear = 1;
-  oilpress = 15; // most likely float - reference hv or lv
-  drs = 3;
-  lv = 14.540510;
+  //oilpress = 15; // most likely float - reference hv or lv
+  //drs = 3;
+  //lv = 14.540510;
 //  hv = 250.81430;
 //  soc = 97;
 //  acctemp = 51.8234;

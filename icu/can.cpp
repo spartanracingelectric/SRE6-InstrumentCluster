@@ -98,7 +98,7 @@ static void can__soc_receive (const CANMessage & inMessage)
 
 static void can__lv_receive (const CANMessage & inMessage)
 {
-//  curr_lv = ((inMessage.data[0]) | (inMessage.data[1] << 8)) * 0.001f; // for e car
+  curr_lv = ((inMessage.data[0]) | (inMessage.data[1] << 8)) * 0.001f; // for e car
 }
 
 static void can__acctemp_receive (const CANMessage & inMessage)
