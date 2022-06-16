@@ -13,19 +13,19 @@ void lcd__print14(uint8_t x, uint8_t y, const char *str);                 //Prin
 void lcd__print18(uint8_t x, uint8_t y, char *str);                 //Print str with Helvetica Bold Size 18
 void lcd__print24(uint8_t x, uint8_t y, char *str);                 //Print str with Helvetica Bold Size 24
 void lcd__print_default_screen_template();
-void lcd__update_section(uint8_t section);
+void lcd__clear_section(uint8_t section);
 
 // C car
 void lcd__print_rpm(uint16_t rpm);
 void lcd__print_gear(uint8_t gear);
-void lcd__print_oiltemp(uint8_t oiltemp); // Oil coolant? temperature
+void lcd__print_oilpress(float oilpress); // Oil coolant? pressure // float or uint8
 // E car
 void lcd__print_hv(float hv); // accumulator voltage
 void lcd__print_soc(uint8_t soc); // State of charge 0-100%
 void lcd__print_wattemp(uint8_t watertemp); // Water Coolant Temp
 // E & C car
 void lcd__print_lv(float lv); // low voltage battery soc
-void lcd__print_etemp(uint8_t etemp); // Accumulator/Engine temperature
+void lcd__print_acctemp(float acctemp); // Accumulator/Engine temperature
 
 // 
 void lcd__rpm_screen(void); // Change RPM Threshold
@@ -34,7 +34,7 @@ void lcd__rpm_G23(void); // Gears 2-3
 void lcd__rpm_G34(void); // Gears 3-4
 void lcd__rpm_G45(void); // Gears 4-5
 void lcd__rpm_G56(void); // Gears 5-6
-//void lcd_print__tiretemp(uint8_t tiretemp); // Tire temperatures multiple variables?
+//void lcd_print__tiracctemp(uint8_t tiracctemp); // Tire temperatures multiple variables?
 
 // Menu stuff
 void lcd__menu(void);
@@ -42,8 +42,8 @@ void lcd__highlight_screen(uint8_t row, const char* screen);
 void lcd__print_screen(uint8_t selection, uint8_t row, char screen); // 5 row + Back template
 void lcd__drs_screen(uint8_t drs);
 
-void lcd__update_screen(uint16_t rpm, uint8_t gear, uint8_t lv, uint8_t etemp, uint8_t oiltemp, uint8_t drs, uint32_t curr_millis_lcd);
-void lcd__update_screenE(float hv, uint8_t soc, float lv, uint8_t etemp, uint8_t oiltemp, uint8_t drs, uint32_t curr_millis_lcd);
+void lcd__update_screen(uint16_t rpm, uint8_t gear, float lv, float oilpress, uint8_t drs, uint32_t curr_millis_lcd);
+void lcd__update_screenE(float hv, float soc, float lv, float acctemp, uint32_t curr_millis_lcd);
 
 
 #endif /* LCD_H_ */
