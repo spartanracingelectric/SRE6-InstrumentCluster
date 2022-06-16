@@ -272,6 +272,30 @@ void leds__set_brightness(uint8_t brightness_value)
   leds->control(MD_MAX72XX::INTENSITY, brightness_value);
 }
 
+void leds__oilpress(float oilpress) // float or uint8
+{
+  if (oilpress < 15) {
+    leds->setPoint(3, 4, false); // w/o this, combines Red and Green as both turn on
+    leds->setPoint(2, 4, true);
+  }
+  else {
+    leds->setPoint(2, 4, false);
+    leds->setPoint(3, 4, true);
+  }
+}
+
+void leds__lv(float lv)
+{
+  if (lv < 10.0){
+    leds->setPoint(3, 1, false);
+    leds->setPoint(PIN_LED_RGB_R[3][0], PIN_LED_RGB_R[3][1], true);
+  }
+  else{
+    leds->setPoint(PIN_LED_RGB_R[3][0], PIN_LED_RGB_R[3][1], false);
+    leds->setPoint(3, 1, true);
+  }
+}
+
 /*
 void leds__wake() {
   lc.shutdown(0,false);
