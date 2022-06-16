@@ -16,6 +16,7 @@ const uint8_t PIN_LED_SOLID[NUM_LED_SOLID][2] = {{0,0}, {0,1}, {0,2}, {0,3}, {0,
                                                 {1,0}, {1,1}, {1,2}, {1,3}, {1,4}};
 
 // RGB LED map (Todo)
+// {Color of LED, which LED}
 // 6 array rows per RGB LED number (red only), 2 array columns per MAX7219 {row, column}
 const uint8_t PIN_LED_RGB_R[NUM_LED_RGB][2] = {{2,0}, {2,2}, {2,4},
                                             {2,1}, {2,3}, {2,5}};
@@ -32,6 +33,9 @@ void leds__start();
 void leds__rpm_update_tach(uint16_t rpm);
 void leds__rpm_update_flash(uint16_t rpm, uint8_t gear, uint32_t curr_millis);
 void leds__set_brightness(uint8_t brightness_value);
+void leds__oilpress(float oilpress);
+void leds__lv(float lv);
+void leds__drs(uint8_t drs);
 
 //create LEDs Update function that takes CAN data and changes LEDs
 
