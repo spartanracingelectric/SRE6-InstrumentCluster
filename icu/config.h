@@ -126,7 +126,7 @@
 #elif (POWERTRAIN_TYPE == 'E')
 #define CANBUS_SPEED 500UL * 1000UL //500 kbit/s
 #define CAN_HV_ADDR 0x620
-#define CAN_LV_ADDR 0x597
+#define CAN_LV_ADDR 0x507
 // wrong addresses
 #define CAN_SOC_ADDR 0x627
 #define CAN_BAT_TEMP_ADDR 0x628
