@@ -24,7 +24,7 @@ static void can__rpm_receive (const CANMessage & inMessage)
 
 static void can__gear_receive (const CANMessage & inMessage)
 {
-  curr_gear = inMessage.data[1];
+  curr_gear = inMessage.data[7];
   //Serial.println ("Received Gear " + curr_gear) ;
 }
 #else
@@ -202,7 +202,7 @@ void can__receive()
   */
   if (can.available ()) {
     can.receive (frame) ;
-    Serial.println((frame.data[1]) | (frame.data[0] << 8));
+    //Serial.println((frame.data[1]) | (frame.data[0] << 8));
   }
   
 }

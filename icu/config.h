@@ -12,8 +12,8 @@
 //#define BOARD_REVISION 'A'
 #define BOARD_REVISION 'B'
 //#define BOARD_REVISION 'B' //Potentially unused
-//#define POWERTRAIN_TYPE 'C'
-#define POWERTRAIN_TYPE 'E'
+#define POWERTRAIN_TYPE 'C'
+//#define POWERTRAIN_TYPE 'E'
 
 // Set to 1 if you want to print the input data over serial
 #define SERIAL_DEBUG_EN 0
@@ -23,10 +23,10 @@
 /---------------------------------------------------------------------------*/
 
 #define DEFAULT_SHIFT_THRESHOLD_RPM 11500
-#define G12_SHIFT_THRESHOLD_RPM 11800
-#define G23_SHIFT_THRESHOLD_RPM 11600
-#define G34_SHIFT_THRESHOLD_RPM 11400
-#define G45_SHIFT_THRESHOLD_RPM 11200
+#define G12_SHIFT_THRESHOLD_RPM 11000
+#define G23_SHIFT_THRESHOLD_RPM 11000
+#define G34_SHIFT_THRESHOLD_RPM 11000
+#define G45_SHIFT_THRESHOLD_RPM 11000
 #define G56_SHIFT_THRESHOLD_RPM 11000
 
 #define OVERREV_THRESHOLD_RPM_ADDER 500
@@ -92,7 +92,7 @@
 //#define CANBUS_SPEED 1000UL * 1000UL //1 Mbit/s
 #define CANBUS_SPEED 500UL * 1000UL //500 kbit/s
 #define CAN_RPM_ADDR    0x640
-#define CAN_GEAR_ADDR   0x703
+#define CAN_GEAR_ADDR   0x64D
 #else //POWERTRAIN_TYPE == 'E'
 #define CANBUS_SPEED 500UL * 1000UL //500 kbit/s
 //#define CAN_HV_TEMP_ADDR    0x
