@@ -45,6 +45,9 @@
 #define OVERREV_THRESHOLD_FLASH_MS 250
 #define REVLIM_THRESHOLD_FLASH_MS 100
 
+#define HVLOW_THRESHOLD_FLASH_MS 750
+#define HVTEMP_THRESHOLD_FLASH_MS 750
+
 #define LCD_UPDATE_MS 500
 
 /*---------------------------------------------------------------------------/
@@ -125,11 +128,12 @@
 
 #elif (POWERTRAIN_TYPE == 'E')
 #define CANBUS_SPEED 500UL * 1000UL //500 kbit/s
-#define CAN_HV_ADDR 0x620
 #define CAN_LV_ADDR 0x507
+#define CAN_HV_ADDR 0x620
+#define CAN_SOC_ADDR 0x621
+#define CAN_HVLOW_ADDR 0x622
+#define CAN_BAT_TEMP_ADDR 0x623
 // wrong addresses
-#define CAN_SOC_ADDR 0x627
-#define CAN_BAT_TEMP_ADDR 0x628
 #define CAN_RPM_ADDR 0x0A5 // Does ev need rpm?
 #define CAN_REGEN_ADDR 0x508
 #endif

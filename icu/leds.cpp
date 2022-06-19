@@ -11,6 +11,8 @@ uint8_t pin_led_solid_state[NUM_LED_SOLID] = {0};
 //Internal variables
 uint32_t prev_millis_overrev = 0;
 uint32_t prev_millis_revlim = 0;
+uint32_t prev_millis_hvlow = 0;
+uint32_t prev_millis_hvtemp = 0;
 
 
 void leds__init(MD_MAX72XX *leds_ptr)
@@ -92,6 +94,24 @@ void leds__disable_all_solid()
   }
 }
 
+void leds__disable_half_solid(bool firstHalf)
+{
+  uint8_t startIdx, endIdx;
+  if (firstHalf) {
+    startIdx = 0;
+    endIdx = (NUM_LED_SOLID/2);
+  }
+  else {
+    startIdx = NUM_LED_SOLID/2;
+    endIdx = NUM_LED_SOLID;
+  }
+  //Change internal state of all leds to LOW
+  for (uint8_t led_idx = startIdx; led_idx < endIdx; led_idx++) {
+    pin_led_solid_state[led_idx] = 0;
+    leds->setPoint(PIN_LED_SOLID[led_idx][0], PIN_LED_SOLID[led_idx][1], false);
+  }
+}
+
 void leds__toggle_overrev()
 {
   for (uint8_t led_idx = 1; led_idx < NUM_LED_SOLID-1; led_idx++) {
@@ -114,6 +134,33 @@ void leds__toggle_overrev()
     pin_led_solid_state[NUM_LED_SOLID-1] = 0;
     leds->setPoint(PIN_LED_SOLID[0][0], PIN_LED_SOLID[0][1], false);
     leds->setPoint(PIN_LED_SOLID[NUM_LED_SOLID-1][0], PIN_LED_SOLID[NUM_LED_SOLID-1][1], false);
+  }
+}
+
+void leds__toggle_half(bool firstHalf) {
+  uint8_t startIdx, endIdx;
+  if (firstHalf)
+  {
+    startIdx = 0;
+    endIdx = (NUM_LED_SOLID/2);
+  }
+  else {
+    startIdx = NUM_LED_SOLID/2;
+    endIdx = NUM_LED_SOLID;
+  }
+  for (uint8_t led_idx = startIdx; led_idx < endIdx; led_idx++) {
+    // If led on
+    if (pin_led_solid_state[led_idx]) {
+      // Then turn off
+      pin_led_solid_state[led_idx] = 0;
+      leds->setPoint(PIN_LED_SOLID[led_idx][0], PIN_LED_SOLID[led_idx][1], false);
+    }
+    //If led off
+    else {
+      // Then turn off
+      pin_led_solid_state[led_idx] = 1;
+      leds->setPoint(PIN_LED_SOLID[led_idx][0], PIN_LED_SOLID[led_idx][1], true);
+    }
   }
 }
 
@@ -293,6 +340,30 @@ void leds__lv(float lv)
   else{
     leds->setPoint(PIN_LED_RGB_R[3][0], PIN_LED_RGB_R[3][1], false);
     leds->setPoint(3, 1, true);
+  }
+}
+
+void leds__safety_update_flash(float hvlow, float hvtemp, uint32_t curr_millis) {
+  if (hvtemp > 50) { //50 C is VCU limit
+    //Toggle 2nd half
+    if (curr_millis-prev_millis_hvtemp >= HVTEMP_THRESHOLD_FLASH_MS) {
+      prev_millis_hvtemp = curr_millis;
+      leds__toggle_half(false);
+    }
+  }
+  else {
+    leds__disable_half_solid(false);
+  }
+  
+  if (hvlow < 3.3f) { //3.3 V is VCU limit
+    //Toggle 1st half
+    if (curr_millis-prev_millis_hvlow >= HVLOW_THRESHOLD_FLASH_MS) {
+      prev_millis_hvlow = curr_millis;
+      leds__toggle_half(true);
+    }
+  }
+  else {
+    leds__disable_half_solid(true);
   }
 }
 

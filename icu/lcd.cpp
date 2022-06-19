@@ -12,7 +12,8 @@ uint8_t gear_prev = -1;
 float soc_prev = -1.0f;
 float hv_prev = -1.0f; 
 float lv_prev = -1.0f;
-float acctemp_prev = -1.0f;
+float hvtemp_prev = -1.0f;
+float hvlow_prev = -1.0f;
 float oilpress_prev = -1.0f; // float or uint8
 uint8_t watertemp_prev = -1;
 uint8_t drs_prev = -1;
@@ -92,10 +93,10 @@ void lcd__print_default_screen_template()
   lcd__clear_screen();
   
   #if (POWERTRAIN_TYPE == 'E')
-  lcd__print8(101, 45, "Acc T");
-  lcd__print8(0, 45, "LV");
-  lcd__print8(102, 18, "volts");
-  lcd__print8(53, 35, "SOC"); 
+  lcd__print8(104, 45, "HV T");
+  lcd__print8(0, 45, "HVLO");
+  lcd__print8(45, 28, "VOLTS");
+  lcd__print8(47, 40, "SOC%"); 
   
   #elif(POWERTRAIN_TYPE == 'C')
   lcd__print8(128 - 20, 18, "rpm");
@@ -109,13 +110,13 @@ void lcd__print_default_screen_template()
 
 void lcd__clear_section (uint8_t sect)
 {
-  int acctemp[] = {90, 64-14, 40, 14};
+  int hvtemp[] = {90, 64-14, 40, 14};
   int hv[] = {30, 0, 70, 18};
   int lv[] = {0, 64-14, 45, 14};
   int soc[] = {40, 64-24, 45, 24};
   int rpm[] = {30, 0, 75,18};
   int gear[] = {50, 64-24, 30, 24};
-  int* sections[] = {acctemp, hv, lv, soc, rpm, gear};
+  int* sections[] = {hvtemp, hv, lv, soc, rpm, gear};
   
   lcd->setDrawColor(0);
   lcd->drawBox(sections[sect][0], sections[sect][1], sections[sect][2], sections[sect][3]);
@@ -179,27 +180,41 @@ void lcd__print_lv(float lv) // low voltage battery
   
   lv_prev = lv; // else, update value_prev and redraw that section
   
-  char lv_str[6] = "     ";
+  char lv_str[5] = "   ";
   leds__lv(lv); // update low voltage led (bottom left)
   
-  sprintf(lv_str, "%0.2f", lv);
+  sprintf(lv_str, "%0.1f", lv);
   
   lcd__clear_section(2);
   lcd__print14(0, 64, lv_str);
 }
 
-void lcd__print_acctemp(float acctemp) // Accumulator/Engine temperature
+void lcd__print_hvlow(float hvlow) // low voltage battery
 {
-  if (acctemp == acctemp_prev) return; // if the value is the same, don't update that "section" 
+  if (hvlow == hvlow_prev) return; // if the value is the same, don't update that "section" 
   
-  acctemp_prev = acctemp; // else, update value_prev and redraw that section
+  hvlow_prev = hvlow; // else, update value_prev and redraw that section
   
-  char acctemp_str[4] = "   ";
+  char hvlow_str[5] = "   ";
+  
+  sprintf(hvlow_str, "%1.2f", hvlow);
+  
+  lcd__clear_section(2);
+  lcd__print14(0, 64, hvlow_str);
+}
 
-  sprintf(acctemp_str, "%3.1f", acctemp);
+void lcd__print_hvtemp(float hvtemp) // Accumulator/Engine temperature
+{
+  if (hvtemp == hvtemp_prev) return; // if the value is the same, don't update that "section" 
+  
+  hvtemp_prev = hvtemp; // else, update value_prev and redraw that section
+  
+  char hvtemp_str[5] = "    ";
 
-  lcd__print14(94, 64, acctemp_str);
+  sprintf(hvtemp_str, "%2.1f", hvtemp);
+
   lcd__clear_section(0);
+  lcd__print14(94, 64, hvtemp_str);
 }
 
 void lcd__print_drs(uint8_t drs) // DRS Open or Closed: 0 or 1
@@ -241,9 +256,16 @@ void lcd__print_soc(float soc) // State of charge 0-100%
   
   soc_prev = soc; // else, update value_prev=value and redraw that section
 
-  char soc_str[4] = "   ";
+  char soc_str[5] = "    ";
 
-  sprintf(soc_str, "%3.0f", soc);
+  if (soc_prev == 100)
+  {
+    sprintf(soc_str, "%3.0f", soc);
+  }
+  else
+  {
+    sprintf(soc_str, "%3.1f", soc);
+  }
   
   lcd__clear_section(3);
   lcd__print18(46, 64, soc_str);
@@ -366,7 +388,7 @@ void lcd__update_screen(uint16_t rpm, uint8_t gear, float lv, float oilpress, ui
   }
 }
 
-void lcd__update_screenE(float hv, float soc, float lv, float acctemp, uint32_t curr_millis_lcd)
+void lcd__update_screenE(float hv, float soc, float lv, float hvlow, float hvtemp, uint32_t curr_millis_lcd)
 {
   if (curr_millis_lcd - prev_millis_lcd >= LCD_UPDATE_MS) {
     prev_millis_lcd = curr_millis_lcd;
@@ -375,8 +397,9 @@ void lcd__update_screenE(float hv, float soc, float lv, float acctemp, uint32_t 
     if (DISPLAY_SCREEN == 0) {
       lcd__print_hv(hv);
       lcd__print_soc(soc);
-      lcd__print_lv(lv);
-      lcd__print_acctemp(acctemp);
+      lcd__print_hvlow(hvlow);
+      //lcd__print_lv(lv);
+      lcd__print_hvtemp(hvtemp);
     }
     if (DISPLAY_SCREEN == 1) {
       lcd__menu();

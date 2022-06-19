@@ -29,12 +29,14 @@ uint8_t can__get_drs();
 static void can__hv_receive (const CANMessage & inMessage);
 static void can__soc_receive (const CANMessage & inMessage);
 static void can__lv_receive (const CANMessage & inMessage);
-static void can__acctemp_receive (const CANMessage & inMessage);
+static void can__hv_low_receive (const CANMessage & inMessage);
+static void can__hvtemp_receive (const CANMessage & inMessage);
 
 float can__get_hv();
 float can__get_soc();
 float can__get_lv();
-float can__get_acctemp(); // E car accumulator
+float can__get_hvtemp(); // E car accumulator
+float can__get_hvlow(); // E car accumulator
 
 #endif
 

@@ -29,7 +29,8 @@ uint8_t drs = 0;
 float hv = 0.0f; 
 float soc = 0.0f;
 float lv = 0.0f;
-float acctemp = 0.0f;
+float hvtemp = 0.0f;
+float hvlow = 0.0f;
 #endif
 
 void setup()
@@ -115,10 +116,11 @@ void loop()
   drs = can__get_drs();
 #elif (POWERTRAIN_TYPE == 'E')
   hv = can__get_hv();
-//  soc = can__get_soc();
+  soc = can__get_soc();
 //  wattemp = can__get_wattemp();
-//  acctemp = can__get_acctemp();
-  lv = can__get_lv();
+  hvtemp = can__get_hvtemp();
+  //lv = can__get_lv();
+  hvlow = can__get_hvlow();
 #endif
 
 //  drs = can__get_dr);
@@ -135,7 +137,9 @@ void loop()
   //lv = 14.540510;
 //  hv = 250.81430;
 //  soc = 97;
-//  acctemp = 51.8234;
+//  hvtemp = 51.8234;
+    //hvlow = 3.2f;
+    //hvtemp = 52.3f;
 
   //lcd__print_rpm(rpm, curr_millis);
 #if (POWERTRAIN_TYPE == 'C')
@@ -143,7 +147,8 @@ void loop()
     lcd__update_screen(rpm, gear, lv, oilpress, drs, curr_millis);
 
 #elif (POWERTRAIN_TYPE == 'E')
-    lcd__update_screenE(hv, soc, lv, acctemp, curr_millis);
+    leds__safety_update_flash(hvlow, hvtemp, curr_millis);
+    lcd__update_screenE(hv, soc, lv, hvlow, hvtemp, curr_millis);
     
 #endif
   //delay(500);

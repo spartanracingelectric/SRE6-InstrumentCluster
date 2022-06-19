@@ -84,7 +84,8 @@ float can__get_lv()
 float curr_hv = 0;
 float curr_soc = 0;
 float curr_lv = 0;
-float curr_acctemp = 0;
+float curr_hvlow = 0;
+float curr_hvtemp = 0;
 
 static void can__hv_receive (const CANMessage & inMessage)
 {
@@ -93,7 +94,7 @@ static void can__hv_receive (const CANMessage & inMessage)
 
 static void can__soc_receive (const CANMessage & inMessage)
 {
-//  curr_soc = inMessage.data[1];
+  curr_soc = ((inMessage.data[6]) | (inMessage.data[7] << 8)) * 0.1f;
 }
 
 static void can__lv_receive (const CANMessage & inMessage)
@@ -101,9 +102,14 @@ static void can__lv_receive (const CANMessage & inMessage)
   curr_lv = ((inMessage.data[0]) | (inMessage.data[1] << 8)) * 0.001f; // for e car
 }
 
-static void can__acctemp_receive (const CANMessage & inMessage)
+static void can__hvlow_receive (const CANMessage & inMessage)
 {
-//  curr_acctemp = inMessage.data[1];
+  curr_hvlow = ((inMessage.data[4]) | (inMessage.data[5] << 8)) * 0.001f; // for e car
+}
+
+static void can__hvtemp_receive (const CANMessage & inMessage)
+{
+  curr_hvtemp = ((inMessage.data[6]) | (inMessage.data[7] << 8)) * 0.1f;
 }
 
 //Accessors
@@ -116,19 +122,24 @@ float can__get_soc()
   return curr_soc;
 }
 
-float can__get_acctemp() // E car accumulator
+float can__get_hvtemp() // E car accumulator
 {
-  return curr_acctemp;
+  return curr_hvtemp;
 }
 
 float can__get_lv()
 {
   return curr_lv;
 }
+
+float can__get_hvlow()
+{
+  return curr_hvlow;
+}
 #endif
 
 const ACAN2515Mask rxm0 = standard2515Mask (0x7FF, 0, 0) ;
-//const ACAN2515Mask rxm1 = standard2515Mask (0x7FF, 0, 0) ;
+const ACAN2515Mask rxm1 = standard2515Mask (0x7FF, 0, 0) ;
 
 // POWERTRAIN_TYPE == 'C'
 #if (POWERTRAIN_TYPE == 'C')
@@ -146,10 +157,11 @@ const ACAN2515AcceptanceFilter filters [] =
 const ACAN2515AcceptanceFilter filters [] =
 {
   //Must have addresses in increasing order
-  {standard2515Filter (CAN_LV_ADDR, 0, 0), can__lv_receive},
-  {standard2515Filter (CAN_HV_ADDR, 0, 0), can__hv_receive}
-  //{standard2515Filter (CAN_SOC_ADDR, 0, 0), can__soc_receive},
-  //{standard2515Filter (CAN_BAT_TEMP_ADDR, 0, 0), can__acctemp_receive},
+  //{standard2515Filter (CAN_LV_ADDR, 0, 0), can__lv_receive},            //RXF0
+  {standard2515Filter (CAN_HV_ADDR, 0, 0), can__hv_receive},            //RXF1
+  {standard2515Filter (CAN_SOC_ADDR, 0, 0), can__soc_receive},          //RXF2
+  {standard2515Filter (CAN_HVLOW_ADDR, 0, 0), can__hvlow_receive},          //RXF2
+  {standard2515Filter (CAN_BAT_TEMP_ADDR, 0, 0), can__hvtemp_receive}  //RXF3
 } ;
 #endif
 
@@ -164,7 +176,7 @@ void can__start()
 
   // With filter
   const uint16_t errorCode = can.begin (settings, [] { can.isr () ; },
-                                        rxm0, filters, 2) ;
+                                        rxm0, rxm1, filters, 4) ;
   
   if (errorCode == 0) {
     Serial.print ("Bit Rate prescaler: ") ;
