@@ -32,11 +32,21 @@ static void can__lv_receive (const CANMessage & inMessage);
 static void can__hv_low_receive (const CANMessage & inMessage);
 static void can__hvtemp_receive (const CANMessage & inMessage);
 
+// diagnostics ---------------------------
+static void can__bms_fault_receive (const CANMessage & inMessage); // cell under voltage fault
+static void can__bms_warn_receive (const CANMessage & inMessage); // cell under voltage warn
+static void can__bms_stat_receive (const CANMessage & inMessage); // bms status 0-5
+
 float can__get_hv();
 float can__get_soc();
 float can__get_lv();
 float can__get_hvtemp(); // E car accumulator
 float can__get_hvlow(); // E car accumulator
+
+// diagnostics ---------------------------
+float can__get_bms_fault(); // not tested
+float can__get_bms_warn(); //
+float can__get_bms_stat(); //
 
 #endif
 
