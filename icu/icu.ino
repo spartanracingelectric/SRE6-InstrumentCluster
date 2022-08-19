@@ -31,6 +31,11 @@ float soc = 0.0f;
 float lv = 0.0f;
 float hvtemp = 0.0f;
 float hvlow = 0.0f;
+
+// diagnostics ---------------------------
+uint8_t cellfault = 0;
+uint8_t cellwarn = 0;
+uint8_t bmsstate = 0;
 #endif
 
 void setup()
@@ -121,6 +126,11 @@ void loop()
   hvtemp = can__get_hvtemp();
   //lv = can__get_lv();
   hvlow = can__get_hvlow();
+
+// diagnostics ---------------------------------
+  cellfault = can__get_bms_fault();
+  cellwarn = can__get_bms_warn();
+  bmsstate = can__get_bms_stat();
 #endif
 
 //  drs = can__get_dr);
@@ -148,7 +158,7 @@ void loop()
 
 #elif (POWERTRAIN_TYPE == 'E')
     leds__safety_update_flash(hvlow, hvtemp, curr_millis);
-    lcd__update_screenE(hv, soc, lv, hvlow, hvtemp, curr_millis);
+    lcd__update_screenE(cellfault, cellwarn, bmsstate, hv, soc, lv, hvlow, hvtemp, curr_millis);
     
 #endif
   //delay(500);

@@ -91,20 +91,24 @@ void lcd__print_default_screen_template()
   delay(100);
 
   lcd__clear_screen();
-  
-  #if (POWERTRAIN_TYPE == 'E')
-  lcd__print8(104, 45, "HV T");
-  lcd__print8(0, 45, "HVLO");
-  lcd__print8(45, 28, "VOLTS");
-  lcd__print8(47, 40, "SOC%"); 
-  
-  #elif(POWERTRAIN_TYPE == 'C')
-  lcd__print8(128 - 20, 18, "rpm");
-  lcd__print8(52, 37, "Gear");
-  lcd__print8(95, 45, "Oil PSI");
-  lcd__print8(0, 45, "LV");
-  lcd__print8(90, 35, "DRS");
-  
+
+  #if (DISPLAY_SCREEN == 0)
+    #if (POWERTRAIN_TYPE == 'E')
+    lcd__print8(104, 45, "HV T");
+    lcd__print8(0, 45, "HVLO");
+    lcd__print8(45, 28, "VOLTS");
+    lcd__print8(47, 40, "SOC%"); 
+    
+    #elif(POWERTRAIN_TYPE == 'C')
+    lcd__print8(128 - 20, 18, "rpm");
+    lcd__print8(52, 37, "Gear");
+    lcd__print8(95, 45, "Oil PSI");
+    lcd__print8(0, 45, "LV");
+    lcd__print8(90, 35, "DRS");
+    
+    #endif
+  #elif (DISPLAY_SCREEN == 1)
+    
   #endif
 }
 
@@ -313,59 +317,31 @@ void lcd__menu(void)
   lcd__print_screen(ROW_COUNT, 6, screens);
 }
 
-// RPM Threshold Screens ---------------------------------------------------------------
-void lcd__rpm_screen(void) // rpm threshold
+void lcd__diagnostics(uint8_t cellfault, uint8_t cellwarn, uint8_t bmsstate)
 {
-    // Screens
-  char* zero = "Gear 1-2";
-  char* one = "Gear 2-3";
-  char* two = "Gear 3-4";
-  char* three = "Gear 4-5";
-  char* four = "Gear 5-6";
-  char* back = "Back";
+  // Screens
+  const char* zero = "Cell Under Voltage Fault";
+  const char* one = "Current BMS Status";
+  const char* two = "Plceholder";
+  const char* three = "Holder of Places";
+  const char* four = "Placeholder";
+  const char* back = "Back";
   const char* screens[6] = {zero, one, two, three, four, back};
+  
+  lcd__print_screen(5, 6, screens);
+  
+  char cellfault_str[2] = " ";
+  sprintf(callfault_str, "%1d", cellfault);
+  lcd__print8(56, 9, cellfault_str);
 
-  lcd__print_screen(ROW_COUNT, 6, screens);
+  char bmsstate_str[2] = " ";
+  sprintf(bmsstate_str, "%1d", bmsstate);
+  lcd__print8(56, 9+12, bmsstate_str);
 }
 
-void lcd__rpm_G12(void)
-{
-  //  lcd__print24(53, (64 - 24) / 2 + 24, DEFAULT_SHIFT_THRESHOLD_RPM);
-  char* back = "Back";
-  uint16_t rpm = G12_SHIFT_THRESHOLD_RPM;
-    //RPM up to 5 digits
-  uint8_t RPM_MAX_DIGITS = 5;
-  char rpm_str_prev[6] = "     ";
-  char rpm_str[6] = "     ";
-  uint8_t rpm_num_digits = 1;
-
-  //Round to hundreds
-  rpm_num_digits = (int)log10(rpm) + 1;
-
-  //clear remaining 1s before reupdating
-  if (rpm_num_digits == 4) {
-    rpm_str[0] = ' ';
-  }
-
-  for (uint8_t i = 0; i < rpm_num_digits; i++) {
-    rpm_str_prev[i] = rpm % 10 + '0';
-    rpm /= 10;
-  }
-  for (uint8_t i = 0; i < rpm_num_digits; i++) {
-    rpm_str[RPM_MAX_DIGITS - i - 1] = rpm_str_prev[i];
-  }
-  lcd__print8(0, 8, "RPM | Gear 1-2");
-  lcd__print18(30, 40, rpm_str);
-
-  if (ROW_COUNT == 1) {
-    lcd__print8(128 - lcd->getStrWidth(back) - 1, 63, back);
-  } else {
-    lcd__highlight_screen(5, back);
-  }
-}
 
 // LCD Screen Update --------------------------------------------------------------- ---------------------------------------------------------------
-void lcd__update_screen(uint16_t rpm, uint8_t gear, float lv, float oilpress, uint8_t drs, uint32_t curr_millis_lcd)
+void lcd__update_screen(uint16_t rpm, uint8_t gear, float lv, float oilpress, uint8_t drs, uint32_t curr_millis_lcd) // C Car
 {
   if (curr_millis_lcd - prev_millis_lcd >= LCD_UPDATE_MS) {
     prev_millis_lcd = curr_millis_lcd;
@@ -376,19 +352,10 @@ void lcd__update_screen(uint16_t rpm, uint8_t gear, float lv, float oilpress, ui
       lcd__print_oilpress(oilpress);
       lcd__print_drs(drs);
     }
-    else if (DISPLAY_SCREEN == 1) {
-      lcd__menu();
-    }
-    else if (DISPLAY_SCREEN == 2) {
-      lcd__rpm_screen();
-    }
-    else if (DISPLAY_SCREEN == 3) {
-      lcd__rpm_G12();
-    }
   }
 }
 
-void lcd__update_screenE(float hv, float soc, float lv, float hvlow, float hvtemp, uint32_t curr_millis_lcd)
+void lcd__update_screenE(uint8_t cellfault, uint8_t cellwarn, uint8_t bmsstate, float hv, float soc, float lv, float hvlow, float hvtemp, uint32_t curr_millis_lcd);
 {
   if (curr_millis_lcd - prev_millis_lcd >= LCD_UPDATE_MS) {
     prev_millis_lcd = curr_millis_lcd;
@@ -403,6 +370,9 @@ void lcd__update_screenE(float hv, float soc, float lv, float hvlow, float hvtem
     }
     if (DISPLAY_SCREEN == 1) {
       lcd__menu();
+    }
+    if (DISPLAY_SCREEN == 2) {
+      lcd__diagnostics(uint8_t cellfault, uint8_t cellwarn, uint8_t bmsstate);
     }
   }
 }

@@ -93,11 +93,11 @@
 //#define BUT3 17 //PINC2
 //#define BUT4 15 //PINC3
 
-#define DEFAULT_SCREEN 1
-#define MENU_SCREEN 2
-#define SETTINGS_SCREEN 3
-#define OPTIONX_SCREEN 4
-#define OPTIONY_SCREEN 5
+#define DEFAULT_SCREEN 0
+#define MENU_SCREEN 1
+#define DIAGNOSTICS_SCREEN 2
+//#define OPTIONX_SCREEN 3
+//#define OPTIONY_SCREEN 4
 
 #define DEBOUNCE_TIME 600
 #define LOCK_TIME 100
